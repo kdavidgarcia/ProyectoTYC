@@ -187,8 +187,8 @@ body[data-theme="dark"] .theme-toggle:hover {
     color: var(--text-soft);
     font-style: italic;
     padding: 8px 10px;
-    background: rgba(59, 130, 246, 0.05);
-    border-left: 3px solid #2563eb;
+    background: rgba(245, 158, 11, 0.08);
+    border-left: 3px solid #f59e0b;
     border-radius: 4px;
 }
 
@@ -223,8 +223,8 @@ select {
 input:focus,
 select:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
 button {
@@ -432,7 +432,7 @@ tr:hover {
 }
 
 .analisis-valor {
-    color: #2563eb;
+    color: #d97706;
     font-size: 1.1rem;
     white-space: nowrap;
 }
@@ -463,7 +463,7 @@ tr:hover {
 }
 
 .param-line strong {
-    color: #2563eb;
+    color: #d97706;
 }
 
 .pn-chips {
