@@ -311,12 +311,20 @@ function limpiarAnalisis() {
 
     const paramLambda = document.getElementById("paramLambda");
     const paramMu = document.getElementById("paramMu");
+    const paramCs = document.getElementById("paramCs");
+    const paramCw = document.getElementById("paramCw");
     const paramModelo = document.getElementById("paramModelo");
     const estadoSistema = document.getElementById("estadoSistema");
+    const paramLineCs = document.getElementById("paramLineCs");
+    const paramLineCw = document.getElementById("paramLineCw");
     if (paramLambda) paramLambda.textContent = "-";
     if (paramMu) paramMu.textContent = "-";
+    if (paramCs) paramCs.textContent = "-";
+    if (paramCw) paramCw.textContent = "-";
     if (paramModelo) paramModelo.textContent = "-";
     if (estadoSistema) estadoSistema.textContent = "-";
+    if (paramLineCs) paramLineCs.style.display = "none";
+    if (paramLineCw) paramLineCw.style.display = "none";
 }
 
 function obtenerFilaReferencia(filas) {
@@ -419,12 +427,20 @@ function renderizarAnalisis(filas, requestData) {
 
     const paramLambda = document.getElementById("paramLambda");
     const paramMu = document.getElementById("paramMu");
+    const paramCs = document.getElementById("paramCs");
+    const paramCw = document.getElementById("paramCw");
     const paramModelo = document.getElementById("paramModelo");
     const estadoSistema = document.getElementById("estadoSistema");
+    const paramLineCs = document.getElementById("paramLineCs");
+    const paramLineCw = document.getElementById("paramLineCw");
     if (paramLambda) paramLambda.textContent = formatearValor(Number(requestData.lambda));
     if (paramMu) paramMu.textContent = formatearValor(Number(requestData.mu));
+    if (paramCs) paramCs.textContent = formatearValor(Number(fila[7]));
+    if (paramCw) paramCw.textContent = formatearValor(Number(fila[8]));
     if (paramModelo) paramModelo.textContent = nombreModelo;
     if (estadoSistema) estadoSistema.textContent = rho < 1 ? "Estable" : "Inestable";
+    if (paramLineCs) paramLineCs.style.display = requestData.modelo === "mm1" ? "none" : "flex";
+    if (paramLineCw) paramLineCw.style.display = requestData.modelo === "mm1" ? "none" : "flex";
 
     renderizarGraficasAnalisis({ rho, l, lq, w, wq, probabilidades });
 }
