@@ -3,6 +3,13 @@ let metricasChart = null;
 let utilizacionChart = null;
 let pnChart = null;
 let resultadosTablaCompletos = [];
+const exportState = {
+    tabla: false,
+    costos: false,
+    metricas: false,
+    utilizacion: false,
+    pn: false
+};
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
 const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
 const API_URL = isLocalHost
@@ -134,6 +141,8 @@ function limpiarVistaPorCambioModelo() {
 
     destruirGraficasAnalisis();
     limpiarAnalisis();
+    renderizarGraficasVacias();
+    toggleAcciones(false);
 
     const estado = document.getElementById("estado");
     if (estado) {
@@ -222,9 +231,15 @@ async function calcular() {
 
         const filas = result.resultados || [];
         mostrarTabla(filas, modelo);
-        graficar(filas);
-        renderizarAnalisis(filas, data);
-        toggleAcciones(filas.length > 0);
+        const tieneCostos = graficar(filas);
+        const estadoAnalisis = renderizarAnalisis(filas, data);
+        toggleAcciones({
+            tabla: filas.length > 0,
+            costos: tieneCostos,
+            metricas: estadoAnalisis.metricas,
+            utilizacion: estadoAnalisis.utilizacion,
+            pn: estadoAnalisis.pn
+        });
         mostrarMensaje("Calculo completado.", false);
     } catch (error) {
         toggleAcciones(false);
@@ -298,6 +313,12 @@ function graficar(datos) {
         }
     });
 
+    const tieneDatos = labels.length > 0;
+    const labelsFinales = tieneDatos ? labels : ["Sin datos"];
+    const costoServicioFinal = tieneDatos ? costoServicio : [0];
+    const costoEsperaFinal = tieneDatos ? costoEspera : [0];
+    const costoTotalFinal = tieneDatos ? costoTotal : [0];
+
     const ctx = document.getElementById("grafica").getContext("2d");
     if (chart) {
         chart.destroy();
@@ -306,27 +327,27 @@ function graficar(datos) {
     chart = new Chart(ctx, {
         type: "line",
         data: {
-            labels,
+            labels: labelsFinales,
             datasets: [
                 {
                     label: "Costo Servicio",
-                    data: costoServicio,
-                    borderColor: "#1f77b4",
-                    backgroundColor: "rgba(31,119,180,0.2)",
+                    data: costoServicioFinal,
+                    borderColor: tieneDatos ? "#1f77b4" : "#cbd5e1",
+                    backgroundColor: tieneDatos ? "rgba(31,119,180,0.2)" : "rgba(203,213,225,0.25)",
                     tension: 0.2
                 },
                 {
                     label: "Costo Espera",
-                    data: costoEspera,
-                    borderColor: "#ff7f0e",
-                    backgroundColor: "rgba(255,127,14,0.2)",
+                    data: costoEsperaFinal,
+                    borderColor: tieneDatos ? "#ff7f0e" : "#cbd5e1",
+                    backgroundColor: tieneDatos ? "rgba(255,127,14,0.2)" : "rgba(203,213,225,0.25)",
                     tension: 0.2
                 },
                 {
                     label: "Costo Total",
-                    data: costoTotal,
-                    borderColor: "#2ca02c",
-                    backgroundColor: "rgba(44,160,44,0.2)",
+                    data: costoTotalFinal,
+                    borderColor: tieneDatos ? "#2ca02c" : "#cbd5e1",
+                    backgroundColor: tieneDatos ? "rgba(44,160,44,0.2)" : "rgba(203,213,225,0.25)",
                     tension: 0.2
                 }
             ]
@@ -340,6 +361,20 @@ function graficar(datos) {
                 }
             }
         }
+    });
+
+    return tieneDatos;
+}
+
+function renderizarGraficasVacias() {
+    graficar([]);
+    renderizarGraficasAnalisis({
+        rho: 0,
+        l: 0,
+        lq: 0,
+        w: 0,
+        wq: 0,
+        probabilidades: []
     });
 }
 
@@ -454,14 +489,14 @@ function renderizarAnalisis(filas, requestData) {
     const rows = document.getElementById("analisisRows");
     const chips = document.getElementById("pnChips");
     if (!rows || !chips) {
-        return;
+        return { metricas: false, utilizacion: false, pn: false };
     }
 
     if (!fila) {
         rows.innerHTML = construirFilasAnalisisVacias();
         chips.innerHTML = "<span class='chip-muted'>No disponible para sistema inestable.</span>";
-        destruirGraficasAnalisis();
-        return;
+        renderizarGraficasAnalisis({ rho: 0, l: 0, lq: 0, w: 0, wq: 0, probabilidades: [] });
+        return { metricas: false, utilizacion: false, pn: false };
     }
 
     const rho = Number(fila[1]);
@@ -521,6 +556,7 @@ function renderizarAnalisis(filas, requestData) {
     if (paramLineCw) paramLineCw.style.display = requestData.modelo === "mm1" ? "none" : "flex";
 
     renderizarGraficasAnalisis({ rho, l, lq, w, wq, probabilidades });
+    return { metricas: true, utilizacion: true, pn: probabilidades.length > 0 };
 }
 
 function destruirGraficasAnalisis() {
@@ -580,14 +616,19 @@ function renderizarGraficasAnalisis(data) {
         }
     });
 
+    const probabilidades = Array.isArray(data.probabilidades) && data.probabilidades.length > 0
+        ? data.probabilidades
+        : [{ n: 0, pn: 0 }];
+    const tieneProbabilidades = Array.isArray(data.probabilidades) && data.probabilidades.length > 0;
+
     pnChart = new Chart(pnCtx, {
         type: "bar",
         data: {
-            labels: data.probabilidades.map((p) => `n=${p.n}`),
+            labels: probabilidades.map((p) => `n=${p.n}`),
             datasets: [{
                 label: "P(n)",
-                data: data.probabilidades.map((p) => p.pn * 100),
-                backgroundColor: "#f59e0b"
+                data: probabilidades.map((p) => p.pn * 100),
+                backgroundColor: tieneProbabilidades ? "#f59e0b" : "#cbd5e1"
             }]
         },
         options: {
@@ -605,7 +646,7 @@ function renderizarGraficasAnalisis(data) {
 }
 
 function exportarExcel() {
-    if (!Array.isArray(resultadosTablaCompletos) || resultadosTablaCompletos.length === 0) {
+    if (!exportState.tabla || !Array.isArray(resultadosTablaCompletos) || resultadosTablaCompletos.length === 0) {
         mostrarMensaje("No hay datos en la tabla para exportar.", true);
         return;
     }
@@ -673,6 +714,11 @@ function obtenerChartPorTipo(tipo) {
 }
 
 function exportarDatosGraficaExcel(tipo) {
+    if (!exportState[tipo]) {
+        mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        return;
+    }
+
     const targetChart = obtenerChartPorTipo(tipo);
     if (!targetChart || !targetChart.data) {
         mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
@@ -703,6 +749,19 @@ function exportarDatosGraficaExcel(tipo) {
 }
 
 function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Grafica de costos") {
+    const tipo = canvasId === "grafica"
+        ? "costos"
+        : canvasId === "metricasChart"
+            ? "metricas"
+            : canvasId === "utilizacionChart"
+                ? "utilizacion"
+                : "pn";
+
+    if (!exportState[tipo]) {
+        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        return;
+    }
+
     const canvas = document.getElementById(canvasId);
 
     if (!canvas) {
@@ -743,6 +802,19 @@ function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf"
 }
 
 function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.png") {
+    const tipo = canvasId === "grafica"
+        ? "costos"
+        : canvasId === "metricasChart"
+            ? "metricas"
+            : canvasId === "utilizacionChart"
+                ? "utilizacion"
+                : "pn";
+
+    if (!exportState[tipo]) {
+        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        return;
+    }
+
     const canvas = document.getElementById(canvasId);
 
     if (!canvas) {
@@ -756,11 +828,48 @@ function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.
     link.click();
 }
 
-function toggleAcciones(enabled) {
-    const buttons = document.querySelectorAll(".acciones button");
-    buttons.forEach((btn) => {
-        btn.disabled = !enabled;
-    });
+function toggleAcciones(state) {
+    const nextState = typeof state === "boolean"
+        ? {
+            tabla: state,
+            costos: state,
+            metricas: state,
+            utilizacion: state,
+            pn: state
+        }
+        : {
+            tabla: Boolean(state?.tabla),
+            costos: Boolean(state?.costos),
+            metricas: Boolean(state?.metricas),
+            utilizacion: Boolean(state?.utilizacion),
+            pn: Boolean(state?.pn)
+        };
+
+    Object.assign(exportState, nextState);
+
+    const setDisabled = (selector, enabled) => {
+        document.querySelectorAll(selector).forEach((btn) => {
+            btn.disabled = !enabled;
+        });
+    };
+
+    setDisabled('button[onclick*="exportarExcel()"]', exportState.tabla);
+
+    setDisabled('button[onclick*="exportarDatosGraficaExcel(\'costos\')"]', exportState.costos);
+    setDisabled('button[onclick*="exportarPDF(\'grafica\'"]', exportState.costos);
+    setDisabled('button[onclick*="exportarGrafica(\'grafica\'"]', exportState.costos);
+
+    setDisabled('button[onclick*="exportarDatosGraficaExcel(\'metricas\')"]', exportState.metricas);
+    setDisabled('button[onclick*="exportarPDF(\'metricasChart\'"]', exportState.metricas);
+    setDisabled('button[onclick*="exportarGrafica(\'metricasChart\'"]', exportState.metricas);
+
+    setDisabled('button[onclick*="exportarDatosGraficaExcel(\'utilizacion\')"]', exportState.utilizacion);
+    setDisabled('button[onclick*="exportarPDF(\'utilizacionChart\'"]', exportState.utilizacion);
+    setDisabled('button[onclick*="exportarGrafica(\'utilizacionChart\'"]', exportState.utilizacion);
+
+    setDisabled('button[onclick*="exportarDatosGraficaExcel(\'pn\')"]', exportState.pn);
+    setDisabled('button[onclick*="exportarPDF(\'pnChart\'"]', exportState.pn);
+    setDisabled('button[onclick*="exportarGrafica(\'pnChart\'"]', exportState.pn);
 }
 
 function mostrarMensaje(texto, isError) {

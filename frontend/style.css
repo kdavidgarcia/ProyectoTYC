@@ -338,6 +338,13 @@ button:hover::after {
     display: none;
 }
 
+.icon-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
 table {
     margin: 0;
     border-collapse: collapse;
