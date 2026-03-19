@@ -303,7 +303,7 @@ function limpiarAnalisis() {
     const rows = document.getElementById("analisisRows");
     const chips = document.getElementById("pnChips");
     if (rows) {
-        rows.innerHTML = "";
+        rows.innerHTML = construirFilasAnalisisVacias();
     }
     if (chips) {
         chips.innerHTML = "<span class='chip-muted'>Sin resultados aun.</span>";
@@ -325,6 +325,27 @@ function limpiarAnalisis() {
     if (estadoSistema) estadoSistema.textContent = "-";
     if (paramLineCs) paramLineCs.style.display = "none";
     if (paramLineCw) paramLineCw.style.display = "none";
+}
+
+function construirFilasAnalisisVacias() {
+    const metricas = [
+        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado" },
+        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola" },
+        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
+        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
+        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes" }
+    ];
+
+    return metricas.map((m) => `
+        <div class="analisis-row">
+            <div>
+                <p class="analisis-nombre">${m.nombre}</p>
+                <p class="analisis-desc">${m.desc}</p>
+            </div>
+            <strong class="analisis-valor">-</strong>
+        </div>
+    `).join("");
 }
 
 function obtenerFilaReferencia(filas) {
@@ -380,7 +401,7 @@ function renderizarAnalisis(filas, requestData) {
     }
 
     if (!fila) {
-        rows.innerHTML = "<p class='chip-muted'>El sistema es inestable para los parametros enviados.</p>";
+        rows.innerHTML = construirFilasAnalisisVacias();
         chips.innerHTML = "<span class='chip-muted'>No disponible para sistema inestable.</span>";
         destruirGraficasAnalisis();
         return;
