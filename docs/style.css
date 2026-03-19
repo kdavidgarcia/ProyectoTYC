@@ -338,6 +338,14 @@ button:hover::after {
     display: none;
 }
 
+.icon-btn-img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+}
+
 .icon-btn:disabled {
     opacity: 0.45;
     cursor: not-allowed;
