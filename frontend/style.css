@@ -896,3 +896,46 @@ table {
         max-height: 220px !important;
     }
 }
+
+/* Authoritative final overrides requested by user */
+.dashboard-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+}
+
+.input-card {
+    position: static !important;
+}
+
+.segment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.segment-header h3,
+.segment-header h4 {
+    margin: 0;
+}
+
+.icon-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.icon-btn {
+    margin-top: 0;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+}

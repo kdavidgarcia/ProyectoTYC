@@ -50,6 +50,12 @@
         <h2>Resultados</h2>
 
         <div class="table-wrap">
+            <div class="segment-header">
+                <h3>Tabla de resultados</h3>
+                <div class="icon-actions">
+                    <button type="button" class="icon-btn" title="Exportar tabla a Excel" onclick="exportarExcel()">📗</button>
+                </div>
+            </div>
             <table id="tabla">
                 <thead>
                     <tr>
@@ -81,21 +87,42 @@
 
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
-                        <h4>Metricas de rendimiento</h4>
+                        <div class="segment-header">
+                            <h4>Metricas de rendimiento</h4>
+                            <div class="icon-actions">
+                                <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('metricas')">📗</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('metricasChart', 'metricas_rendimiento.pdf', 'Metricas de rendimiento')">📄</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('metricasChart', 'metricas_rendimiento.png')">🖼️</button>
+                            </div>
+                        </div>
                         <canvas id="metricasChart"></canvas>
                     </article>
                 </div>
 
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
-                        <h4>Factor de utilizacion</h4>
+                        <div class="segment-header">
+                            <h4>Factor de utilizacion</h4>
+                            <div class="icon-actions">
+                                <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('utilizacion')">📗</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('utilizacionChart', 'factor_utilizacion.pdf', 'Factor de utilizacion')">📄</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('utilizacionChart', 'factor_utilizacion.png')">🖼️</button>
+                            </div>
+                        </div>
                         <canvas id="utilizacionChart"></canvas>
                     </article>
                 </div>
 
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
-                        <h4>Distribucion de probabilidades P(n)</h4>
+                        <div class="segment-header">
+                            <h4>Distribucion de probabilidades P(n)</h4>
+                            <div class="icon-actions">
+                                <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('pn')">📗</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('pnChart', 'distribucion_pn.pdf', 'Distribucion P(n)')">📄</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('pnChart', 'distribucion_pn.png')">🖼️</button>
+                            </div>
+                        </div>
                         <div id="pnChips" class="pn-chips"></div>
                         <canvas id="pnChart"></canvas>
                     </article>
@@ -103,18 +130,19 @@
 
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card grafica-principal-card">
-                        <h4>Grafica de costos</h4>
+                        <div class="segment-header">
+                            <h4>Grafica de costos</h4>
+                            <div class="icon-actions">
+                                <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('costos')">📗</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('grafica', 'grafica_costos.pdf', 'Grafica de costos')">📄</button>
+                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('grafica', 'grafica_costos.png')">🖼️</button>
+                            </div>
+                        </div>
                         <canvas id="grafica"></canvas>
                     </article>
                 </div>
             </div>
         </section>
-
-        <div class="acciones">
-            <button type="button" onclick="exportarExcel()">📥 Exportar Excel</button>
-            <button type="button" onclick="exportarPDF()">📄 Exportar PDF</button>
-            <button type="button" onclick="exportarGrafica()">📊 Exportar Gráfica</button>
-        </div>
     </section>
 
     </div>

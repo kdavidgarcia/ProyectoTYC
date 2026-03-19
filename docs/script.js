@@ -557,10 +557,47 @@ function exportarExcel() {
     XLSX.writeFile(wb, "resultados_teoria_colas.xlsx", { cellStyles: true, compression: true });
 }
 
-function exportarPDF() {
-    const canvas = document.getElementById("grafica");
+function obtenerChartPorTipo(tipo) {
+    if (tipo === "metricas") return metricasChart;
+    if (tipo === "utilizacion") return utilizacionChart;
+    if (tipo === "pn") return pnChart;
+    return chart;
+}
 
-    if (!canvas || !chart) {
+function exportarDatosGraficaExcel(tipo) {
+    const targetChart = obtenerChartPorTipo(tipo);
+    if (!targetChart || !targetChart.data) {
+        mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        return;
+    }
+
+    const labels = targetChart.data.labels || [];
+    const datasets = targetChart.data.datasets || [];
+    if (labels.length === 0 || datasets.length === 0) {
+        mostrarMensaje("No hay datos disponibles para exportar.", true);
+        return;
+    }
+
+    const encabezados = ["Etiqueta", ...datasets.map((d) => d.label || "Serie")];
+    const filas = labels.map((label, i) => {
+        const row = [String(label)];
+        datasets.forEach((d) => {
+            const valor = Array.isArray(d.data) ? d.data[i] : "";
+            row.push(valor ?? "");
+        });
+        return row;
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Datos");
+    XLSX.writeFile(wb, `datos_${tipo}_teoria_colas.xlsx`);
+}
+
+function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Grafica de costos") {
+    const canvas = document.getElementById(canvasId);
+
+    if (!canvas) {
         mostrarMensaje("Primero genera una grafica para exportar.", true);
         return;
     }
@@ -592,22 +629,22 @@ function exportarPDF() {
     const x = (pageWidth - imgWidth) / 2;
     const y = 14;
 
-    pdf.text("Grafica de costos", margin, 8);
+    pdf.text(titulo, margin, 8);
     pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-    pdf.save("grafica_teoria_colas.pdf");
+    pdf.save(fileName);
 }
 
-function exportarGrafica() {
-    const canvas = document.getElementById("grafica");
+function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.png") {
+    const canvas = document.getElementById(canvasId);
 
-    if (!canvas || !chart) {
+    if (!canvas) {
         mostrarMensaje("Primero genera una grafica para exportar.", true);
         return;
     }
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png", 1.0);
-    link.download = "grafica_teoria_colas.png";
+    link.download = fileName;
     link.click();
 }
 
