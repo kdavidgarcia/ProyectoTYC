@@ -1,5 +1,5 @@
 let chart = null;
-const RENDER_BASE_URL = "https://TU-URL-RENDER.onrender.com";
+const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
 const API_URL = window.location.hostname.includes("github.io")
     ? `${RENDER_BASE_URL}/calcular`
     : "http://127.0.0.1:5000/calcular";
