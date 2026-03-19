@@ -485,8 +485,8 @@ table {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: rgba(15, 23, 42, 0.28);
-    backdrop-filter: blur(2px);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(1px);
     z-index: 1000;
 }
 
@@ -496,18 +496,29 @@ table {
 
 .loading-overlay p {
     margin: 0;
-    color: #ffffff;
+    color: #1d4ed8;
     font-weight: 700;
     letter-spacing: 0.3px;
 }
 
 .loading-spinner {
-    width: 54px;
-    height: 54px;
+    width: 74px;
+    height: 74px;
     border-radius: 50%;
-    border: 5px solid rgba(255, 255, 255, 0.4);
-    border-top-color: #f59e0b;
-    animation: spin 0.8s linear infinite;
+    background: conic-gradient(
+        from 0deg,
+        #2563eb 0 52deg,
+        transparent 52deg 104deg,
+        #2563eb 104deg 156deg,
+        transparent 156deg 208deg,
+        #2563eb 208deg 260deg,
+        transparent 260deg 312deg,
+        #2563eb 312deg 360deg
+    );
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 11px), #000 calc(100% - 10px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 11px), #000 calc(100% - 10px));
+    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.45));
+    animation: spin 0.95s linear infinite;
 }
 
 @keyframes spin {
