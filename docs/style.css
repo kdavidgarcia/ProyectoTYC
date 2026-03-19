@@ -290,6 +290,13 @@ button:hover::after {
     font-size: 1.4rem;
 }
 
+.resultados-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
 .export-only-table {
     display: none;
 }
@@ -478,6 +485,16 @@ tr:hover {
     padding: 18px;
 }
 
+.resultados-split .grafica-container {
+    margin: 0;
+}
+
+.resultados-split .grafica-container h3 {
+    margin: 0 0 10px;
+    font-size: 1.06rem;
+    color: #111827;
+}
+
 #grafica {
     max-height: 460px;
 }
@@ -530,6 +547,10 @@ table {
     .grafica-container {
         width: 100%;
         padding: 12px;
+    }
+
+    .resultados-split {
+        grid-template-columns: 1fr;
     }
 
     .analisis-extra-grid,
