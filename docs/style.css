@@ -369,6 +369,16 @@ tr:hover {
     background: var(--row-hover);
 }
 
+.inestable-row td {
+    color: #b91c1c;
+    background: #fef2f2;
+}
+
+.inestable-cell {
+    font-weight: 800;
+    color: #991b1b;
+}
+
 .analisis-heading {
     margin: 10px 0 10px;
     text-align: center;
@@ -442,6 +452,10 @@ tr:hover {
     color: #d97706;
     font-size: 1.1rem;
     white-space: nowrap;
+}
+
+.analisis-valor-inestable {
+    color: #b91c1c;
 }
 
 .mini-card {

@@ -276,9 +276,17 @@ function mostrarTabla(datos, modelo = "") {
 
     filasVisibles.forEach((fila) => {
         const tr = document.createElement("tr");
+        const filaInestable = fila.some((col) => String(col).toLowerCase() === "inestable");
+        if (filaInestable) {
+            tr.classList.add("inestable-row");
+        }
+
         fila.forEach((col) => {
             const td = document.createElement("td");
             td.textContent = formatearValor(col);
+            if (String(col).toLowerCase() === "inestable") {
+                td.classList.add("inestable-cell");
+            }
             tr.appendChild(td);
         });
         tbody.appendChild(tr);
@@ -441,6 +449,27 @@ function construirFilasAnalisisVacias() {
     `).join("");
 }
 
+function construirFilasAnalisisInestable() {
+    const metricas = [
+        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado" },
+        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola" },
+        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
+        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
+        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes" }
+    ];
+
+    return metricas.map((m) => `
+        <div class="analisis-row">
+            <div>
+                <p class="analisis-nombre">${m.nombre}</p>
+                <p class="analisis-desc">${m.desc}</p>
+            </div>
+            <strong class="analisis-valor analisis-valor-inestable">Inestable</strong>
+        </div>
+    `).join("");
+}
+
 function obtenerFilaReferencia(filas) {
     const estables = filas.filter((f) => typeof f[1] === "number");
     if (estables.length === 0) {
@@ -496,8 +525,27 @@ function renderizarAnalisis(filas, requestData) {
     }
 
     if (!fila) {
-        rows.innerHTML = construirFilasAnalisisVacias();
-        chips.innerHTML = "<span class='chip-muted'>No disponible para sistema inestable.</span>";
+        const esInestable = filas.some((f) => String(f[1]).toLowerCase() === "inestable");
+        rows.innerHTML = esInestable ? construirFilasAnalisisInestable() : construirFilasAnalisisVacias();
+        chips.innerHTML = esInestable
+            ? "<span class='chip-muted'>Sistema inestable: no se pueden calcular probabilidades P(n).</span>"
+            : "<span class='chip-muted'>No disponible para sistema inestable.</span>";
+
+        const paramModelo = document.getElementById("paramModelo");
+        const estadoSistema = document.getElementById("estadoSistema");
+        if (paramModelo) {
+            paramModelo.textContent = requestData.modelo === "mm1"
+                ? "M/M/1"
+                : requestData.modelo === "mms"
+                    ? "M/M/s"
+                    : "M/M/1/K";
+        }
+        if (estadoSistema) {
+            estadoSistema.textContent = esInestable ? "Inestable" : "-";
+            estadoSistema.classList.toggle("estado-inestable", esInestable);
+            estadoSistema.classList.remove("estado-estable");
+        }
+
         renderizarGraficasAnalisis({ rho: 0, l: 0, lq: 0, w: 0, wq: 0, probabilidades: [] });
         return { metricas: false, utilizacion: false, pn: false };
     }
