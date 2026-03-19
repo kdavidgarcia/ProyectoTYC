@@ -336,14 +336,25 @@ function limpiarAnalisis() {
     const estadoSistema = document.getElementById("estadoSistema");
     const paramLineCs = document.getElementById("paramLineCs");
     const paramLineCw = document.getElementById("paramLineCw");
+    const modelo = document.getElementById("modelo")?.value || "";
+    const mostrarCostos = modelo === "mms" || modelo === "mm1k";
+
     if (paramLambda) paramLambda.textContent = "-";
     if (paramMu) paramMu.textContent = "-";
     if (paramCs) paramCs.textContent = "-";
     if (paramCw) paramCw.textContent = "-";
-    if (paramModelo) paramModelo.textContent = "-";
+    if (paramModelo) {
+        paramModelo.textContent = modelo === "mm1"
+            ? "M/M/1"
+            : modelo === "mms"
+                ? "M/M/s"
+                : modelo === "mm1k"
+                    ? "M/M/1/K"
+                    : "-";
+    }
     if (estadoSistema) estadoSistema.textContent = "-";
-    if (paramLineCs) paramLineCs.style.display = "none";
-    if (paramLineCw) paramLineCw.style.display = "none";
+    if (paramLineCs) paramLineCs.style.display = mostrarCostos ? "flex" : "none";
+    if (paramLineCw) paramLineCw.style.display = mostrarCostos ? "flex" : "none";
 }
 
 function construirFilasAnalisisVacias() {
