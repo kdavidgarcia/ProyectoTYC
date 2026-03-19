@@ -31,6 +31,14 @@ body[data-theme="dark"] .footer {
     border-color: #f59e0b;
 }
 
+body[data-theme="dark"] .navbar {
+    border-bottom: 3px solid #f59e0b !important;
+}
+
+body[data-theme="dark"] .footer {
+    border-top: 3px solid #f59e0b !important;
+}
+
 body[data-theme="dark"] .navbar-title,
 body[data-theme="dark"] .footer {
     color: #0f172a;
