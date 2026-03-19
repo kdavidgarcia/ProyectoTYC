@@ -809,3 +809,90 @@ table {
         grid-template-columns: 1fr;
     }
 }
+
+/* Clean dashboard grid tune-up to avoid compressed/overlapping cards. */
+.dashboard-layout {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+    gap: 20px;
+}
+
+.resultados {
+    overflow: hidden;
+}
+
+.analisis-bloques {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.analisis-col {
+    min-width: 0;
+}
+
+.analisis-col-metricas,
+.analisis-col-wide {
+    grid-column: auto;
+}
+
+.analisis-rows,
+.analisis-col .mini-card {
+    min-height: 220px;
+}
+
+.analisis-row {
+    padding: 14px 16px;
+}
+
+.analisis-nombre {
+    font-size: 1rem;
+}
+
+.analisis-desc {
+    font-size: 0.83rem;
+}
+
+.analisis-valor {
+    font-size: 1.1rem;
+}
+
+.pn-chips {
+    margin-bottom: 10px;
+}
+
+#metricasChart,
+#utilizacionChart,
+#pnChart,
+#grafica {
+    width: 100% !important;
+    height: 240px !important;
+    max-height: 240px !important;
+}
+
+.grafica-principal-card #grafica {
+    height: 280px !important;
+    max-height: 280px !important;
+}
+
+@media (max-width: 1180px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .input-card {
+        position: static;
+    }
+}
+
+@media (max-width: 900px) {
+    .analisis-bloques {
+        grid-template-columns: 1fr;
+    }
+
+    #metricasChart,
+    #utilizacionChart,
+    #pnChart,
+    #grafica {
+        height: 220px !important;
+        max-height: 220px !important;
+    }
+}
