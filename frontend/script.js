@@ -769,15 +769,41 @@ function obtenerChartPorTipo(tipo) {
     return chart;
 }
 
-function exportarDatosGraficaExcel(tipo) {
+function obtenerCanvasIdPorTipo(tipo) {
+    if (tipo === "metricas") return "metricasChart";
+    if (tipo === "utilizacion") return "utilizacionChart";
+    if (tipo === "pn") return "pnChart";
+    return "grafica";
+}
+
+function obtenerTituloPorTipo(tipo) {
+    if (tipo === "metricas") return "Metricas de rendimiento";
+    if (tipo === "utilizacion") return "Factor de utilizacion";
+    if (tipo === "pn") return "Distribucion de probabilidades P(n)";
+    return "Grafica de costos";
+}
+
+async function exportarDatosGraficaExcel(tipo) {
     if (!exportState[tipo]) {
         mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        return;
+    }
+
+    if (!window.ExcelJS) {
+        mostrarMensaje("No se encontro ExcelJS para exportar la grafica en Excel.", true);
         return;
     }
 
     const targetChart = obtenerChartPorTipo(tipo);
     if (!targetChart || !targetChart.data) {
         mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        return;
+    }
+
+    const canvasId = obtenerCanvasIdPorTipo(tipo);
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        mostrarMensaje("No se encontro el lienzo de la grafica para exportar.", true);
         return;
     }
 
@@ -798,10 +824,69 @@ function exportarDatosGraficaExcel(tipo) {
         return row;
     });
 
-    const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Datos");
-    XLSX.writeFile(wb, `datos_${tipo}_teoria_colas.xlsx`);
+    const wb = new window.ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Grafica");
+    const titulo = obtenerTituloPorTipo(tipo);
+
+    ws.getCell("A1").value = titulo;
+    ws.getCell("A1").font = { bold: true, size: 14, color: { argb: "FF0F172A" } };
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.fillStyle = "#ffffff";
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    tempCtx.drawImage(canvas, 0, 0);
+
+    const imageId = wb.addImage({
+        base64: tempCanvas.toDataURL("image/png"),
+        extension: "png"
+    });
+
+    const imageWidth = 920;
+    const imageHeight = 360;
+    ws.addImage(imageId, {
+        tl: { col: 0, row: 2 },
+        ext: { width: imageWidth, height: imageHeight }
+    });
+
+    const dataStartRow = 24;
+    ws.getCell(`A${dataStartRow - 1}`).value = "Datos de la grafica";
+    ws.getCell(`A${dataStartRow - 1}`).font = { bold: true, size: 11 };
+
+    const headerRow = ws.getRow(dataStartRow);
+    encabezados.forEach((header, index) => {
+        const cell = headerRow.getCell(index + 1);
+        cell.value = header;
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0F172A" } };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    filas.forEach((fila, filaIndex) => {
+        const row = ws.getRow(dataStartRow + filaIndex + 1);
+        fila.forEach((valor, colIndex) => {
+            const cell = row.getCell(colIndex + 1);
+            cell.value = valor;
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+        });
+    });
+
+    encabezados.forEach((_, i) => {
+        ws.getColumn(i + 1).width = i === 0 ? 20 : 16;
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob(
+        [buffer],
+        { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+    );
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `grafica_${tipo}_teoria_colas.xlsx`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1500);
 }
 
 function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Grafica de costos") {
