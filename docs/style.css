@@ -34,6 +34,12 @@ body[data-theme="dark"] .footer {
 body[data-theme="dark"] .navbar {
     border-bottom: 3px solid #f59e0b !important;
 }
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
 
 body[data-theme="dark"] .footer {
     border-top: 3px solid #f59e0b !important;
@@ -41,9 +47,15 @@ body[data-theme="dark"] .footer {
 
 body[data-theme="dark"] .navbar-title,
 body[data-theme="dark"] .footer {
+    .input-card {
+        width: 100%;
+        margin: 0;
+        position: sticky;
+        top: 84px;
+    }
     color: #0f172a;
 }
-
+        margin-top: 0;
 body[data-theme="dark"] .theme-toggle {
     background: #0f172a;
     color: #f8fafc;
@@ -730,4 +742,82 @@ table {
 
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Final layout overrides: structured dashboard like provided mockup. */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.dashboard-layout .card {
+    width: 100%;
+    margin: 0;
+}
+
+.input-card {
+    position: sticky;
+    top: 84px;
+}
+
+.dashboard-layout .resultados {
+    margin-top: 0;
+}
+
+.analisis-heading {
+    margin: 12px 0 10px;
+    font-size: 1.45rem;
+    text-align: center;
+    color: #0f172a;
+}
+
+.analisis-panel {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+.analisis-bloques {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.analisis-col-metricas,
+.analisis-col-wide {
+    grid-column: 1 / -1;
+}
+
+.analisis-rows {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.analisis-col .mini-card {
+    height: 100%;
+}
+
+.grafica-principal-card #grafica {
+    max-height: 360px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .input-card {
+        position: static;
+    }
+}
+
+@media (max-width: 900px) {
+    .analisis-bloques {
+        grid-template-columns: 1fr;
+    }
 }

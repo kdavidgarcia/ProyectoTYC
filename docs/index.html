@@ -25,7 +25,9 @@
     <p id="estado" class="estado">Ingresa parametros y presiona Calcular.</p>
     <p class="sub">Calculadora de modelos M/M/1, M/M/s y M/M/1/K</p>
 
-    <section class="card section-card">
+    <div class="dashboard-layout">
+
+    <section class="card section-card input-card">
 
         <div class="modelo-selector">
             <label for="modelo">Selecciona el modelo:</label>
@@ -47,7 +49,7 @@
     <section class="resultados section-card">
         <h2>Resultados</h2>
 
-        <div class="table-wrap export-only-table">
+        <div class="table-wrap">
             <table id="tabla">
                 <thead>
                     <tr>
@@ -59,18 +61,15 @@
             </table>
         </div>
 
-        <div class="resultados-split">
-            <section id="analisisPanel" class="analisis-panel" aria-live="polite">
-                <h3>Resultados del analisis</h3>
+        <h3 class="analisis-heading">Resultados del analisis</h3>
 
-                <div id="analisisRows" class="analisis-rows"></div>
+        <section id="analisisPanel" class="analisis-panel" aria-live="polite">
+            <div class="analisis-bloques">
+                <div class="analisis-col analisis-col-metricas">
+                    <div id="analisisRows" class="analisis-rows"></div>
+                </div>
 
-                <div class="analisis-extra-grid">
-                    <article class="analisis-card section-card mini-card">
-                        <h4>Distribucion de probabilidades P(n)</h4>
-                        <div id="pnChips" class="pn-chips"></div>
-                    </article>
-
+                <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <h4>Parametros utilizados</h4>
                         <div class="param-line"><span>λ (Tasa de llegada)</span><strong id="paramLambda">-</strong></div>
@@ -80,29 +79,36 @@
                     </article>
                 </div>
 
-                <div class="analisis-charts-grid">
+                <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <h4>Metricas de rendimiento</h4>
                         <canvas id="metricasChart"></canvas>
                     </article>
+                </div>
 
+                <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <h4>Factor de utilizacion</h4>
                         <canvas id="utilizacionChart"></canvas>
                     </article>
+                </div>
 
-                    <article class="analisis-card section-card mini-card chart-wide">
-                        <h4>Distribucion P(n)</h4>
+                <div class="analisis-col analisis-col-wide">
+                    <article class="analisis-card section-card mini-card">
+                        <h4>Distribucion de probabilidades P(n)</h4>
+                        <div id="pnChips" class="pn-chips"></div>
                         <canvas id="pnChart"></canvas>
                     </article>
                 </div>
-            </section>
 
-            <section class="grafica-container section-card">
-                <h3>Grafica de costos</h3>
-                <canvas id="grafica"></canvas>
-            </section>
-        </div>
+                <div class="analisis-col analisis-col-wide">
+                    <article class="analisis-card section-card mini-card grafica-principal-card">
+                        <h4>Grafica de costos</h4>
+                        <canvas id="grafica"></canvas>
+                    </article>
+                </div>
+            </div>
+        </section>
 
         <div class="acciones">
             <button type="button" onclick="exportarExcel()">📥 Exportar Excel</button>
@@ -110,6 +116,8 @@
             <button type="button" onclick="exportarGrafica()">📊 Exportar Gráfica</button>
         </div>
     </section>
+
+    </div>
 
 </div>
 
