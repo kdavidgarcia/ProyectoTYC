@@ -291,6 +291,13 @@ button:hover::after {
     background: #ffffff;
 }
 
+.table-limit-notice {
+    margin: 10px 12px 12px;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    font-weight: 600;
+}
+
 .segment-header {
     display: flex;
     align-items: center;

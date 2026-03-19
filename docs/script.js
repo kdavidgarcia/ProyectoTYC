@@ -2,6 +2,7 @@ let chart = null;
 let metricasChart = null;
 let utilizacionChart = null;
 let pnChart = null;
+let resultadosTablaCompletos = [];
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
 const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
 const API_URL = isLocalHost
@@ -220,7 +221,7 @@ async function calcular() {
         }
 
         const filas = result.resultados || [];
-        mostrarTabla(filas);
+        mostrarTabla(filas, modelo);
         graficar(filas);
         renderizarAnalisis(filas, data);
         toggleAcciones(filas.length > 0);
@@ -243,11 +244,22 @@ function setLoading(isLoading) {
     overlay.setAttribute("aria-hidden", isLoading ? "false" : "true");
 }
 
-function mostrarTabla(datos) {
+function mostrarTabla(datos, modelo = "") {
     const tbody = document.querySelector("#tabla tbody");
+    const modeloActual = modelo || document.getElementById("modelo")?.value || "";
+    resultadosTablaCompletos = Array.isArray(datos) ? [...datos] : [];
+    const mostrarSoloDiez = modeloActual === "mms" && resultadosTablaCompletos.length > 10;
+    const filasVisibles = mostrarSoloDiez ? resultadosTablaCompletos.slice(0, 10) : resultadosTablaCompletos;
+
+    actualizarAvisoLimiteTabla(modeloActual, resultadosTablaCompletos.length);
+
+    if (!tbody) {
+        return;
+    }
+
     tbody.innerHTML = "";
 
-    datos.forEach((fila) => {
+    filasVisibles.forEach((fila) => {
         const tr = document.createElement("tr");
         fila.forEach((col) => {
             const td = document.createElement("td");
@@ -256,6 +268,19 @@ function mostrarTabla(datos) {
         });
         tbody.appendChild(tr);
     });
+}
+
+function actualizarAvisoLimiteTabla(modelo, totalResultados) {
+    const aviso = document.getElementById("tableLimitNotice");
+    if (!aviso) {
+        return;
+    }
+
+    const mostrar = modelo === "mms" && totalResultados > 10;
+    aviso.style.display = mostrar ? "block" : "none";
+    aviso.textContent = mostrar
+        ? "Solo se muestran 10 resultados, si deseas ver mas puedes descargar el Excel."
+        : "";
 }
 
 function graficar(datos) {
@@ -580,19 +605,14 @@ function renderizarGraficasAnalisis(data) {
 }
 
 function exportarExcel() {
-    const tabla = document.getElementById("tabla");
-    const tbody = document.querySelector("#tabla tbody");
-
-    if (!tabla || !tbody || tbody.rows.length === 0) {
+    if (!Array.isArray(resultadosTablaCompletos) || resultadosTablaCompletos.length === 0) {
         mostrarMensaje("No hay datos en la tabla para exportar.", true);
         return;
     }
 
     const encabezados = Array.from(document.querySelectorAll("#tabla thead th"))
         .map((th) => th.textContent.trim());
-    const filas = Array.from(tbody.querySelectorAll("tr")).map((tr) =>
-        Array.from(tr.querySelectorAll("td")).map((td) => td.textContent.trim())
-    );
+    const filas = resultadosTablaCompletos.map((fila) => fila.map((col) => formatearValor(col)));
 
     const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
     const wb = XLSX.utils.book_new();
