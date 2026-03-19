@@ -98,11 +98,6 @@ async function calcular() {
     }
 
     try {
-        if (window.location.hostname.includes("github.io") && RENDER_BASE_URL.includes("TU-URL-RENDER")) {
-            mostrarMensaje("Configura tu URL de Render en script.js para usar el sitio publicado.", true);
-            return;
-        }
-
         mostrarMensaje("Calculando...", false);
         const response = await fetch(API_URL, {
             method: "POST",
