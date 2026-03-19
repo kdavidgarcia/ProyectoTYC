@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teoría de Colas</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="navbar-inner">
+        <div class="navbar-title">Teoría de Colas</div>
+        <button id="themeToggle" class="theme-toggle" type="button">Modo oscuro</button>
+    </div>
+</nav>
+
+<div class="main">
+
+    <p id="estado" class="estado">Ingresa parametros y presiona Calcular.</p>
+    <p class="sub">Calculadora de modelos M/M/1, M/M/s y M/M/1/K</p>
+
+    <section class="card section-card">
+
+        <label>Modelo:</label>
+        <select id="modelo" onchange="cambiarFormulario()">
+            <option value="">Seleccionar</option>
+            <option value="mm1">M/M/1</option>
+            <option value="mms">M/M/s</option>
+            <option value="mm1k">M/M/1/K</option>
+        </select>
+
+        <div id="formulario" class="form-grid"></div>
+
+        <button type="button" onclick="calcular()">Calcular</button>
+
+    </section>
+
+    <section class="resultados section-card">
+        <h2>Resultados</h2>
+
+        <div class="table-wrap">
+            <table id="tabla">
+                <thead>
+                    <tr>
+                        <th>S</th><th>ρ</th><th>P0</th><th>Lq</th><th>L</th>
+                        <th>Wq</th><th>W</th><th>Cs</th><th>Cw</th><th>Ct</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="acciones">
+            <button type="button" onclick="exportarExcel()">📥 Exportar Excel</button>
+            <button type="button" onclick="exportarPDF()">📄 Exportar PDF</button>
+            <button type="button" onclick="exportarGrafica()">📊 Exportar Gráfica</button>
+        </div>
+    </section>
+
+    <section class="grafica-container section-card">
+        <canvas id="grafica"></canvas>
+    </section>
+
+</div>
+
+<footer class="footer">
+    <p>Todos los derechos reservados 2026 Kevin Garcia - Jose Muriel</p>
+</footer>
+
+<script src="script.js"></script>
+
+<!-- jsPDF (PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- html2canvas (captura gráfica) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- SheetJS (exportar Excel) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</body>
+</html>
