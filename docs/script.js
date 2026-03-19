@@ -570,7 +570,7 @@ function renderizarGraficasAnalisis(data) {
             labels: ["Utilizado", "Disponible"],
             datasets: [{
                 data: [Math.max(0, data.rho), Math.max(0, 1 - data.rho)],
-                backgroundColor: ["#2563eb", "#d1d5db"]
+                backgroundColor: ["#f59e0b", "#d1d5db"]
             }]
         },
         options: {
@@ -587,7 +587,7 @@ function renderizarGraficasAnalisis(data) {
             datasets: [{
                 label: "P(n)",
                 data: data.probabilidades.map((p) => p.pn * 100),
-                backgroundColor: "#3b82f6"
+                backgroundColor: "#f59e0b"
             }]
         },
         options: {
