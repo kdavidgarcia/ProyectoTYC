@@ -294,7 +294,12 @@ function mostrarMensaje(texto, isError) {
     if (!estado) {
         return;
     }
-    estado.textContent = texto;
+
+    const mensajeFinal = !isError && /completado/i.test(texto)
+        ? `✅ ${texto}`
+        : texto;
+
+    estado.textContent = mensajeFinal;
     estado.className = isError ? "estado error" : "estado ok";
 }
 
