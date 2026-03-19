@@ -1,8 +1,9 @@
 let chart = null;
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
-const API_URL = window.location.hostname.includes("github.io")
-    ? `${RENDER_BASE_URL}/calcular`
-    : "http://127.0.0.1:5000/calcular";
+const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
+const API_URL = isLocalHost
+    ? "http://127.0.0.1:5000/calcular"
+    : `${RENDER_BASE_URL}/calcular`;
 const THEME_KEY = "queue_theme";
 
 document.addEventListener("DOMContentLoaded", () => {
