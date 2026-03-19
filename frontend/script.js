@@ -101,6 +101,25 @@ function cambiarFormulario() {
 
     document.getElementById("formulario").innerHTML = html;
     document.getElementById("modelo-desc").textContent = descripcion;
+    limpiarVistaPorCambioModelo();
+}
+
+function limpiarVistaPorCambioModelo() {
+    mostrarTabla([]);
+
+    if (chart) {
+        chart.destroy();
+        chart = null;
+    }
+
+    destruirGraficasAnalisis();
+    limpiarAnalisis();
+
+    const estado = document.getElementById("estado");
+    if (estado) {
+        estado.textContent = "Ingresa parametros y presiona Calcular.";
+        estado.className = "estado";
+    }
 }
 
 async function calcular() {
