@@ -94,6 +94,15 @@ body {
     color: #f8fafc;
     text-align: center;
     width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.nav-icon {
+    font-size: 1.05em;
+    line-height: 1;
 }
 
 .theme-toggle {
