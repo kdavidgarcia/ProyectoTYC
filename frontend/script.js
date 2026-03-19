@@ -1,5 +1,8 @@
 let chart = null;
-const API_URL = "http://127.0.0.1:5000/calcular";
+const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
+const API_URL = window.location.hostname.includes("github.io")
+    ? `${RENDER_BASE_URL}/calcular`
+    : "http://127.0.0.1:5000/calcular";
 const THEME_KEY = "queue_theme";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -95,6 +98,11 @@ async function calcular() {
     }
 
     try {
+        if (window.location.hostname.includes("github.io") && RENDER_BASE_URL.includes("TU-URL-RENDER")) {
+            mostrarMensaje("Configura tu URL de Render en script.js para usar el sitio publicado.", true);
+            return;
+        }
+
         mostrarMensaje("Calculando...", false);
         const response = await fetch(API_URL, {
             method: "POST",
