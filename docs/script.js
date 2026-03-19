@@ -224,8 +224,32 @@ function exportarExcel() {
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.table_to_sheet(tabla);
+
+    const headerStyle = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { patternType: "solid", fgColor: { rgb: "0F172A" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+            top: { style: "thin", color: { rgb: "CBD5E1" } },
+            bottom: { style: "thin", color: { rgb: "CBD5E1" } },
+            left: { style: "thin", color: { rgb: "CBD5E1" } },
+            right: { style: "thin", color: { rgb: "CBD5E1" } }
+        }
+    };
+
+    const ref = ws["!ref"];
+    if (ref) {
+        const range = XLSX.utils.decode_range(ref);
+        for (let col = range.s.c; col <= range.e.c; col += 1) {
+            const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+            if (ws[cellAddress]) {
+                ws[cellAddress].s = headerStyle;
+            }
+        }
+    }
+
     XLSX.utils.book_append_sheet(wb, ws, "Resultados");
-    XLSX.writeFile(wb, "resultados_teoria_colas.xlsx");
+    XLSX.writeFile(wb, "resultados_teoria_colas.xlsx", { cellStyles: true });
 }
 
 function exportarPDF() {
