@@ -98,6 +98,7 @@ async function calcular() {
         return;
     }
 
+    setLoading(true);
     try {
         mostrarMensaje("Calculando...", false);
         const response = await fetch(API_URL, {
@@ -122,7 +123,19 @@ async function calcular() {
     } catch (error) {
         toggleAcciones(false);
         mostrarMensaje(`No se pudo calcular: ${error.message}`, true);
+    } finally {
+        setLoading(false);
     }
+}
+
+function setLoading(isLoading) {
+    const overlay = document.getElementById("loadingOverlay");
+    if (!overlay) {
+        return;
+    }
+
+    overlay.classList.toggle("active", isLoading);
+    overlay.setAttribute("aria-hidden", isLoading ? "false" : "true");
 }
 
 function mostrarTabla(datos) {
