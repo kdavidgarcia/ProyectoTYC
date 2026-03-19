@@ -101,7 +101,22 @@ function cambiarFormulario() {
 
     document.getElementById("formulario").innerHTML = html;
     document.getElementById("modelo-desc").textContent = descripcion;
+    ajustarTarjetasPorModelo(modelo);
     limpiarVistaPorCambioModelo();
+}
+
+function ajustarTarjetasPorModelo(modelo) {
+    const pnCol = document.getElementById("pnCol");
+    const costosCol = document.getElementById("costosCol");
+    const mostrarPn = modelo !== "mms";
+
+    if (pnCol) {
+        pnCol.style.display = mostrarPn ? "block" : "none";
+    }
+
+    if (costosCol) {
+        costosCol.style.gridColumn = mostrarPn ? "auto" : "1 / -1";
+    }
 }
 
 function limpiarVistaPorCambioModelo() {
@@ -393,6 +408,8 @@ function construirProbabilidades(modelo, p0, rho, kMax) {
 }
 
 function renderizarAnalisis(filas, requestData) {
+    ajustarTarjetasPorModelo(requestData.modelo);
+
     const fila = obtenerFilaReferencia(filas);
     const rows = document.getElementById("analisisRows");
     const chips = document.getElementById("pnChips");
