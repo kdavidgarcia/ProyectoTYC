@@ -126,8 +126,12 @@ def calcular():
 
         lambda_ = float(data.get("lambda", 0))
         mu = float(data.get("mu", 0))
-        Cs = float(data.get("Cs", 0))
-        Cw = float(data.get("Cw", 0))
+        if modelo == "mm1":
+            Cs = 0.0
+            Cw = 0.0
+        else:
+            Cs = float(data.get("Cs", 0))
+            Cw = float(data.get("Cw", 0))
 
         if lambda_ < 0 or mu <= 0 or Cs < 0 or Cw < 0:
             return jsonify({"error": "Verifica los parametros: mu > 0 y costos no negativos"}), 400
@@ -168,8 +172,12 @@ def analizar_probabilidades():
         modelo = data.get("modelo")
         lambda_ = float(data.get("lambda", 0))
         mu = float(data.get("mu", 0))
-        Cs = float(data.get("Cs", 0))
-        Cw = float(data.get("Cw", 0))
+        if modelo == "mm1":
+            Cs = 0.0
+            Cw = 0.0
+        else:
+            Cs = float(data.get("Cs", 0))
+            Cw = float(data.get("Cw", 0))
 
         if modelo == "mm1":
             cola = ModeloMM1(lambda_, mu, Cs, Cw)

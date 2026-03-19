@@ -55,6 +55,15 @@ function cambiarFormulario() {
             <label for="mu">μ (Tasa de servicio):</label>
             <input id="mu" type="number" min="0" step="any" placeholder="Ej: 8">
         </div>
+    `;
+
+    let descripcion = "";
+
+    if (modelo === "mm1") {
+        descripcion = "Una cola con un único servidor. λ debe ser menor a μ para estabilidad. Este modelo no solicita costos.";
+    } else if (modelo === "mms") {
+        descripcion = "Una cola con múltiples servidores en paralelo. Ingresa el número de servidores.";
+        html += `
         <div class="param-group">
             <label for="Cs">Costo de servicio (Cs):</label>
             <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 10">
@@ -63,15 +72,6 @@ function cambiarFormulario() {
             <label for="Cw">Costo de espera (Cw):</label>
             <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
         </div>
-    `;
-
-    let descripcion = "";
-
-    if (modelo === "mm1") {
-        descripcion = "Una cola con un único servidor. λ debe ser menor a μ para estabilidad.";
-    } else if (modelo === "mms") {
-        descripcion = "Una cola con múltiples servidores en paralelo. Ingresa el número de servidores.";
-        html += `
         <div class="param-group">
             <label for="s_max">Número de servidores (s):</label>
             <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 3">
@@ -80,6 +80,14 @@ function cambiarFormulario() {
     } else if (modelo === "mm1k") {
         descripcion = "Una cola con un servidor y capacidad máxima limitada (K clientes max).";
         html += `
+        <div class="param-group">
+            <label for="Cs">Costo de servicio (Cs):</label>
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 10">
+        </div>
+        <div class="param-group">
+            <label for="Cw">Costo de espera (Cw):</label>
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
+        </div>
         <div class="param-group">
             <label for="K">Capacidad máxima (K):</label>
             <input id="K" type="number" min="1" step="1" placeholder="Ej: 10">
@@ -102,10 +110,16 @@ async function calcular() {
     const data = {
         modelo,
         lambda: parseFloat(document.getElementById("lambda")?.value || 0),
-        mu: parseFloat(document.getElementById("mu")?.value || 0),
-        Cs: parseFloat(document.getElementById("Cs")?.value || 0),
-        Cw: parseFloat(document.getElementById("Cw")?.value || 0)
+        mu: parseFloat(document.getElementById("mu")?.value || 0)
     };
+
+    if (modelo === "mm1") {
+        data.Cs = 0;
+        data.Cw = 0;
+    } else {
+        data.Cs = parseFloat(document.getElementById("Cs")?.value || 0);
+        data.Cw = parseFloat(document.getElementById("Cw")?.value || 0);
+    }
 
     if (modelo === "mms") {
         data.s_max = parseInt(document.getElementById("s_max")?.value || 1);
@@ -116,8 +130,8 @@ async function calcular() {
     }
 
     // Validaciones
-    if (!data.lambda || !data.mu || data.Cs === "" || data.Cw === "") {
-        mostrarMensaje("Completa todos los campos requeridos.", true);
+    if (!data.lambda || !data.mu) {
+        mostrarMensaje("Completa λ y μ.", true);
         return;
     }
 
@@ -126,8 +140,13 @@ async function calcular() {
         return;
     }
 
-    if (data.Cs < 0 || data.Cw < 0) {
+    if (modelo !== "mm1" && (data.Cs < 0 || data.Cw < 0)) {
         mostrarMensaje("Los costos no pueden ser negativos.", true);
+        return;
+    }
+
+    if (modelo !== "mm1" && (!Number.isFinite(data.Cs) || !Number.isFinite(data.Cw))) {
+        mostrarMensaje("Completa Cs y Cw con valores validos.", true);
         return;
     }
 
