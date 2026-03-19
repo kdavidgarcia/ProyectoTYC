@@ -21,6 +21,10 @@ body[data-theme="dark"] {
     background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
 }
 
+body[data-theme="dark"] .sub {
+    color: #f8fafc;
+}
+
 body[data-theme="dark"] .navbar,
 body[data-theme="dark"] .footer {
     background: #f8fafc;
