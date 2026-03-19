@@ -412,7 +412,10 @@ function limpiarAnalisis() {
                     ? "M/M/1/K"
                     : "-";
     }
-    if (estadoSistema) estadoSistema.textContent = "-";
+    if (estadoSistema) {
+        estadoSistema.textContent = "-";
+        estadoSistema.classList.remove("estado-estable", "estado-inestable");
+    }
     if (paramLineCs) paramLineCs.style.display = mostrarCostos ? "flex" : "none";
     if (paramLineCw) paramLineCw.style.display = mostrarCostos ? "flex" : "none";
 }
@@ -551,7 +554,12 @@ function renderizarAnalisis(filas, requestData) {
     if (paramCs) paramCs.textContent = formatearValor(Number(fila[7]));
     if (paramCw) paramCw.textContent = formatearValor(Number(fila[8]));
     if (paramModelo) paramModelo.textContent = nombreModelo;
-    if (estadoSistema) estadoSistema.textContent = rho < 1 ? "Estable" : "Inestable";
+    if (estadoSistema) {
+        const esEstable = rho < 1;
+        estadoSistema.textContent = esEstable ? "Estable" : "Inestable";
+        estadoSistema.classList.toggle("estado-estable", esEstable);
+        estadoSistema.classList.toggle("estado-inestable", !esEstable);
+    }
     if (paramLineCs) paramLineCs.style.display = requestData.modelo === "mm1" ? "none" : "flex";
     if (paramLineCw) paramLineCw.style.display = requestData.modelo === "mm1" ? "none" : "flex";
 
