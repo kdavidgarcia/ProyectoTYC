@@ -108,14 +108,18 @@ function cambiarFormulario() {
 function ajustarTarjetasPorModelo(modelo) {
     const pnCol = document.getElementById("pnCol");
     const costosCol = document.getElementById("costosCol");
-    const mostrarPn = modelo !== "mms";
+    const esMms = modelo === "mms";
+    const mostrarPn = !esMms;
+    const mostrarCostos = esMms;
 
     if (pnCol) {
         pnCol.style.display = mostrarPn ? "block" : "none";
+        pnCol.style.gridColumn = mostrarPn ? "1 / -1" : "auto";
     }
 
     if (costosCol) {
-        costosCol.style.gridColumn = mostrarPn ? "auto" : "1 / -1";
+        costosCol.style.display = mostrarCostos ? "block" : "none";
+        costosCol.style.gridColumn = mostrarCostos ? "1 / -1" : "auto";
     }
 }
 
