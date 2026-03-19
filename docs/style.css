@@ -28,7 +28,7 @@ body[data-theme="dark"] .sub {
 body[data-theme="dark"] .navbar,
 body[data-theme="dark"] .footer {
     background: #f8fafc;
-    border-color: #0f172a;
+    border-color: #f59e0b;
 }
 
 body[data-theme="dark"] .navbar-title,
