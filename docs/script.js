@@ -222,34 +222,61 @@ function exportarExcel() {
         return;
     }
 
+    const encabezados = Array.from(document.querySelectorAll("#tabla thead th"))
+        .map((th) => th.textContent.trim());
+    const filas = Array.from(tbody.querySelectorAll("tr")).map((tr) =>
+        Array.from(tr.querySelectorAll("td")).map((td) => td.textContent.trim())
+    );
+
+    const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.table_to_sheet(tabla);
 
     const headerStyle = {
-        font: { bold: true, color: { rgb: "FFFFFF" } },
-        fill: { patternType: "solid", fgColor: { rgb: "0F172A" } },
+        font: { bold: true, color: { rgb: "FFFFFFFF" } },
+        fill: { patternType: "solid", fgColor: { rgb: "FF0F172A" } },
         alignment: { horizontal: "center", vertical: "center" },
         border: {
-            top: { style: "thin", color: { rgb: "CBD5E1" } },
-            bottom: { style: "thin", color: { rgb: "CBD5E1" } },
-            left: { style: "thin", color: { rgb: "CBD5E1" } },
-            right: { style: "thin", color: { rgb: "CBD5E1" } }
+            top: { style: "thin", color: { rgb: "FFCBD5E1" } },
+            bottom: { style: "thin", color: { rgb: "FFCBD5E1" } },
+            left: { style: "thin", color: { rgb: "FFCBD5E1" } },
+            right: { style: "thin", color: { rgb: "FFCBD5E1" } }
+        }
+    };
+
+    const bodyStyle = {
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+            top: { style: "thin", color: { rgb: "FFE2E8F0" } },
+            bottom: { style: "thin", color: { rgb: "FFE2E8F0" } },
+            left: { style: "thin", color: { rgb: "FFE2E8F0" } },
+            right: { style: "thin", color: { rgb: "FFE2E8F0" } }
         }
     };
 
     const ref = ws["!ref"];
     if (ref) {
         const range = XLSX.utils.decode_range(ref);
+
         for (let col = range.s.c; col <= range.e.c; col += 1) {
-            const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-            if (ws[cellAddress]) {
-                ws[cellAddress].s = headerStyle;
+            const headerAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+            if (ws[headerAddress]) {
+                ws[headerAddress].s = { ...headerStyle };
+            }
+        }
+
+        for (let row = 1; row <= range.e.r; row += 1) {
+            for (let col = range.s.c; col <= range.e.c; col += 1) {
+                const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                if (ws[cellAddress]) {
+                    ws[cellAddress].s = { ...bodyStyle };
+                }
             }
         }
     }
 
+    ws["!cols"] = encabezados.map(() => ({ wch: 12 }));
     XLSX.utils.book_append_sheet(wb, ws, "Resultados");
-    XLSX.writeFile(wb, "resultados_teoria_colas.xlsx", { cellStyles: true });
+    XLSX.writeFile(wb, "resultados_teoria_colas.xlsx", { cellStyles: true, compression: true });
 }
 
 function exportarPDF() {
