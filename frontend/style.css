@@ -171,11 +171,40 @@ body {
     padding: 22px;
 }
 
-.card label {
+.modelo-selector {
+    margin-bottom: 16px;
+}
+
+.modelo-selector label {
     display: block;
     text-align: left;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    color: var(--text-main);
+}
+
+.modelo-desc {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    font-style: italic;
+    padding: 8px 12px;
+    background: rgba(59, 130, 246, 0.05);
+    border-left: 3px solid #1d4ed8;
+    border-radius: 4px;
+}
+
+.param-group {
+    display: grid;
+    gap: 6px;
+}
+
+.param-group label {
+    display: block;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 0.95rem;
 }
 
 .form-grid {
@@ -215,6 +244,13 @@ button {
     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
     animation: buttonPopIn 0.45s ease;
     font-weight: 700;
+}
+
+.btn-calcular {
+    width: 100%;
+    padding: 12px 18px;
+    font-size: 1rem;
+    margin-top: 20px;
 }
 
 button:hover {

@@ -27,17 +27,20 @@
 
     <section class="card section-card">
 
-        <label>Modelo:</label>
-        <select id="modelo" onchange="cambiarFormulario()">
-            <option value="">Seleccionar</option>
-            <option value="mm1">M/M/1</option>
-            <option value="mms">M/M/s</option>
-            <option value="mm1k">M/M/1/K</option>
-        </select>
+        <div class="modelo-selector">
+            <label for="modelo">Selecciona el modelo:</label>
+            <select id="modelo" onchange="cambiarFormulario()">
+                <option value="">-- Seleccionar modelo --</option>
+                <option value="mm1">M/M/1 | Una cola, un servidor</option>
+                <option value="mms">M/M/s | Una cola, múltiples servidores</option>
+                <option value="mm1k">M/M/1/K | Una cola, un servidor, capacidad limitada</option>
+            </select>
+            <p id="modelo-desc" class="modelo-desc"></p>
+        </div>
 
         <div id="formulario" class="form-grid"></div>
 
-        <button type="button" onclick="calcular()">Calcular</button>
+        <button type="button" onclick="calcular()" class="btn-calcular">Calcular</button>
 
     </section>
 

@@ -47,54 +47,97 @@ function aplicarTema(theme) {
 function cambiarFormulario() {
     const modelo = document.getElementById("modelo").value;
     let html = `
-        <input id="lambda" type="number" min="0" step="any" placeholder="Lambda (llegadas)">
-        <input id="mu" type="number" min="0" step="any" placeholder="Mu (servicio)">
-        <input id="Cs" type="number" min="0" step="any" placeholder="Costo servicio">
-        <input id="Cw" type="number" min="0" step="any" placeholder="Costo espera">
+        <div class="param-group">
+            <label for="lambda">λ (Tasa de llegadas):</label>
+            <input id="lambda" type="number" min="0" step="any" placeholder="Ej: 5">
+        </div>
+        <div class="param-group">
+            <label for="mu">μ (Tasa de servicio):</label>
+            <input id="mu" type="number" min="0" step="any" placeholder="Ej: 8">
+        </div>
+        <div class="param-group">
+            <label for="Cs">Costo de servicio (Cs):</label>
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 10">
+        </div>
+        <div class="param-group">
+            <label for="Cw">Costo de espera (Cw):</label>
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
+        </div>
     `;
 
-    if (modelo === "mms") {
-        html += `<input id="s_max" type="number" min="1" step="1" placeholder="Numero de servidores">`;
-    }
+    let descripcion = "";
 
-    if (modelo === "mm1k") {
-        html += `<input id="K" type="number" min="1" step="1" placeholder="Capacidad K">`;
+    if (modelo === "mm1") {
+        descripcion = "Una cola con un único servidor. λ debe ser menor a μ para estabilidad.";
+    } else if (modelo === "mms") {
+        descripcion = "Una cola con múltiples servidores en paralelo. Ingresa el número de servidores.";
+        html += `
+        <div class="param-group">
+            <label for="s_max">Número de servidores (s):</label>
+            <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 3">
+        </div>
+        `;
+    } else if (modelo === "mm1k") {
+        descripcion = "Una cola con un servidor y capacidad máxima limitada (K clientes max).";
+        html += `
+        <div class="param-group">
+            <label for="K">Capacidad máxima (K):</label>
+            <input id="K" type="number" min="1" step="1" placeholder="Ej: 10">
+        </div>
+        `;
     }
 
     document.getElementById("formulario").innerHTML = html;
+    document.getElementById("modelo-desc").textContent = descripcion;
 }
 
 async function calcular() {
     const modelo = document.getElementById("modelo").value;
 
+    if (!modelo) {
+        mostrarMensaje("Selecciona un modelo primero.", true);
+        return;
+    }
+
     const data = {
         modelo,
-        lambda: document.getElementById("lambda").value,
-        mu: document.getElementById("mu").value,
-        Cs: document.getElementById("Cs").value,
-        Cw: document.getElementById("Cw").value
+        lambda: parseFloat(document.getElementById("lambda")?.value || 0),
+        mu: parseFloat(document.getElementById("mu")?.value || 0),
+        Cs: parseFloat(document.getElementById("Cs")?.value || 0),
+        Cw: parseFloat(document.getElementById("Cw")?.value || 0)
     };
 
     if (modelo === "mms") {
-        data.s_max = document.getElementById("s_max")?.value;
+        data.s_max = parseInt(document.getElementById("s_max")?.value || 1);
     }
 
     if (modelo === "mm1k") {
-        data.K = document.getElementById("K")?.value;
+        data.K = parseInt(document.getElementById("K")?.value || 1);
     }
 
-    if (!data.modelo || !data.lambda || !data.mu || !data.Cs || !data.Cw) {
-        mostrarMensaje("Completa todos los campos.", true);
+    // Validaciones
+    if (!data.lambda || !data.mu || data.Cs === "" || data.Cw === "") {
+        mostrarMensaje("Completa todos los campos requeridos.", true);
         return;
     }
 
-    if (modelo === "mms" && !data.s_max) {
-        mostrarMensaje("Ingresa el numero de servidores para M/M/s.", true);
+    if (data.lambda <= 0 || data.mu <= 0) {
+        mostrarMensaje("λ y μ deben ser mayores a cero.", true);
         return;
     }
 
-    if (modelo === "mm1k" && !data.K) {
-        mostrarMensaje("Ingresa la capacidad K para M/M/1/K.", true);
+    if (data.Cs < 0 || data.Cw < 0) {
+        mostrarMensaje("Los costos no pueden ser negativos.", true);
+        return;
+    }
+
+    if (modelo === "mms" && (!data.s_max || data.s_max < 1)) {
+        mostrarMensaje("Ingresa un número de servidores válido (≥ 1).", true);
+        return;
+    }
+
+    if (modelo === "mm1k" && (!data.K || data.K < 1)) {
+        mostrarMensaje("Ingresa una capacidad K válida (≥ 1).", true);
         return;
     }
 
