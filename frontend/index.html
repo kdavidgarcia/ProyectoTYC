@@ -47,7 +47,7 @@
     <section class="resultados section-card">
         <h2>Resultados</h2>
 
-        <div class="table-wrap">
+        <div class="table-wrap export-only-table">
             <table id="tabla">
                 <thead>
                     <tr>
@@ -58,6 +58,45 @@
                 <tbody></tbody>
             </table>
         </div>
+
+        <section id="analisisPanel" class="analisis-panel" aria-live="polite">
+            <h3>Resultados del analisis</h3>
+
+            <div id="analisisRows" class="analisis-rows"></div>
+
+            <div class="analisis-extra-grid">
+                <article class="analisis-card section-card mini-card">
+                    <h4>Distribucion de probabilidades P(n)</h4>
+                    <div id="pnChips" class="pn-chips"></div>
+                </article>
+
+                <article class="analisis-card section-card mini-card">
+                    <h4>Parametros utilizados</h4>
+                    <div class="param-line"><span>λ (Tasa de llegada)</span><strong id="paramLambda">-</strong></div>
+                    <div class="param-line"><span>μ (Tasa de servicio)</span><strong id="paramMu">-</strong></div>
+                    <div class="param-line"><span>Modelo</span><strong id="paramModelo">-</strong></div>
+                    <div class="param-line"><span>Estado del sistema</span><strong id="estadoSistema">-</strong></div>
+                </article>
+            </div>
+
+            <div class="analisis-charts-grid">
+                <article class="analisis-card section-card mini-card">
+                    <h4>Metricas de rendimiento</h4>
+                    <canvas id="metricasChart"></canvas>
+                </article>
+
+                <article class="analisis-card section-card mini-card">
+                    <h4>Factor de utilizacion</h4>
+                    <canvas id="utilizacionChart"></canvas>
+                </article>
+
+                <article class="analisis-card section-card mini-card chart-wide">
+                    <h4>Distribucion P(n)</h4>
+                    <canvas id="pnChart"></canvas>
+                </article>
+            </div>
+        </section>
+
         <div class="acciones">
             <button type="button" onclick="exportarExcel()">📥 Exportar Excel</button>
             <button type="button" onclick="exportarPDF()">📄 Exportar PDF</button>

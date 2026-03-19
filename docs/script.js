@@ -1,4 +1,7 @@
 let chart = null;
+let metricasChart = null;
+let utilizacionChart = null;
+let pnChart = null;
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
 const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
 const API_URL = isLocalHost
@@ -15,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     cambiarFormulario();
     toggleAcciones(false);
+    limpiarAnalisis();
 });
 
 function inicializarTema() {
@@ -180,6 +184,7 @@ async function calcular() {
         const filas = result.resultados || [];
         mostrarTabla(filas);
         graficar(filas);
+        renderizarAnalisis(filas, data);
         toggleAcciones(filas.length > 0);
         mostrarMensaje("Calculo completado.", false);
     } catch (error) {
@@ -269,6 +274,217 @@ function graficar(datos) {
             plugins: {
                 legend: {
                     position: "top"
+                }
+            }
+        }
+    });
+}
+
+function limpiarAnalisis() {
+    const rows = document.getElementById("analisisRows");
+    const chips = document.getElementById("pnChips");
+    if (rows) {
+        rows.innerHTML = "";
+    }
+    if (chips) {
+        chips.innerHTML = "<span class='chip-muted'>Sin resultados aun.</span>";
+    }
+
+    const paramLambda = document.getElementById("paramLambda");
+    const paramMu = document.getElementById("paramMu");
+    const paramModelo = document.getElementById("paramModelo");
+    const estadoSistema = document.getElementById("estadoSistema");
+    if (paramLambda) paramLambda.textContent = "-";
+    if (paramMu) paramMu.textContent = "-";
+    if (paramModelo) paramModelo.textContent = "-";
+    if (estadoSistema) estadoSistema.textContent = "-";
+}
+
+function obtenerFilaReferencia(filas) {
+    const estables = filas.filter((f) => typeof f[1] === "number");
+    if (estables.length === 0) {
+        return null;
+    }
+
+    const conCosto = estables.filter((f) => typeof f[9] === "number" && Number.isFinite(f[9]));
+    if (conCosto.length === 0) {
+        return estables[0];
+    }
+
+    return conCosto.reduce((mejor, actual) => (actual[9] < mejor[9] ? actual : mejor));
+}
+
+function construirProbabilidades(modelo, p0, rho, kMax) {
+    if (!Number.isFinite(p0) || !Number.isFinite(rho) || rho < 0) {
+        return [];
+    }
+
+    const probabilidades = [];
+    if (modelo === "mm1k" && Number.isInteger(kMax) && kMax > 0) {
+        for (let n = 0; n <= kMax; n += 1) {
+            const pn = p0 * (rho ** n);
+            probabilidades.push({ n, pn });
+        }
+        return probabilidades;
+    }
+
+    if (modelo !== "mm1") {
+        return [];
+    }
+
+    let n = 0;
+    while (n <= 30) {
+        const pn = p0 * (rho ** n);
+        probabilidades.push({ n, pn });
+        if (n > 0 && pn < 0.01) {
+            break;
+        }
+        n += 1;
+    }
+    return probabilidades;
+}
+
+function renderizarAnalisis(filas, requestData) {
+    const fila = obtenerFilaReferencia(filas);
+    const rows = document.getElementById("analisisRows");
+    const chips = document.getElementById("pnChips");
+    if (!rows || !chips) {
+        return;
+    }
+
+    if (!fila) {
+        rows.innerHTML = "<p class='chip-muted'>El sistema es inestable para los parametros enviados.</p>";
+        chips.innerHTML = "<span class='chip-muted'>No disponible para sistema inestable.</span>";
+        destruirGraficasAnalisis();
+        return;
+    }
+
+    const rho = Number(fila[1]);
+    const p0 = Number(fila[2]);
+    const lq = Number(fila[3]);
+    const l = Number(fila[4]);
+    const wq = Number(fila[5]);
+    const w = Number(fila[6]);
+
+    const metricas = [
+        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado", valor: `${(rho * 100).toFixed(2)}%` },
+        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema", valor: formatearValor(l) },
+        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola", valor: formatearValor(lq) },
+        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema", valor: `${formatearValor(w)} unidades` },
+        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola", valor: `${formatearValor(wq)} unidades` },
+        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes", valor: `${(p0 * 100).toFixed(4)}%` }
+    ];
+
+    rows.innerHTML = metricas.map((m) => `
+        <div class="analisis-row">
+            <div>
+                <p class="analisis-nombre">${m.nombre}</p>
+                <p class="analisis-desc">${m.desc}</p>
+            </div>
+            <strong class="analisis-valor">${m.valor}</strong>
+        </div>
+    `).join("");
+
+    const probabilidades = construirProbabilidades(requestData.modelo, p0, rho, Number(requestData.K));
+    if (probabilidades.length === 0) {
+        chips.innerHTML = "<span class='chip-muted'>P(n) detallada disponible para M/M/1 y M/M/1/K.</span>";
+    } else {
+        chips.innerHTML = probabilidades.map((p) => `<span class="pn-chip">P(${p.n}) = ${(p.pn * 100).toFixed(2)}%</span>`).join("");
+    }
+
+    const nombreModelo = requestData.modelo === "mm1"
+        ? "M/M/1"
+        : requestData.modelo === "mms"
+            ? "M/M/s"
+            : "M/M/1/K";
+
+    const paramLambda = document.getElementById("paramLambda");
+    const paramMu = document.getElementById("paramMu");
+    const paramModelo = document.getElementById("paramModelo");
+    const estadoSistema = document.getElementById("estadoSistema");
+    if (paramLambda) paramLambda.textContent = formatearValor(Number(requestData.lambda));
+    if (paramMu) paramMu.textContent = formatearValor(Number(requestData.mu));
+    if (paramModelo) paramModelo.textContent = nombreModelo;
+    if (estadoSistema) estadoSistema.textContent = rho < 1 ? "Estable" : "Inestable";
+
+    renderizarGraficasAnalisis({ rho, l, lq, w, wq, probabilidades });
+}
+
+function destruirGraficasAnalisis() {
+    if (metricasChart) {
+        metricasChart.destroy();
+        metricasChart = null;
+    }
+    if (utilizacionChart) {
+        utilizacionChart.destroy();
+        utilizacionChart = null;
+    }
+    if (pnChart) {
+        pnChart.destroy();
+        pnChart = null;
+    }
+}
+
+function renderizarGraficasAnalisis(data) {
+    const metricasCtx = document.getElementById("metricasChart")?.getContext("2d");
+    const utilCtx = document.getElementById("utilizacionChart")?.getContext("2d");
+    const pnCtx = document.getElementById("pnChart")?.getContext("2d");
+    if (!metricasCtx || !utilCtx || !pnCtx) {
+        return;
+    }
+
+    destruirGraficasAnalisis();
+
+    metricasChart = new Chart(metricasCtx, {
+        type: "bar",
+        data: {
+            labels: ["L", "Lq", "W", "Wq"],
+            datasets: [{
+                label: "Valor",
+                data: [data.l, data.lq, data.w, data.wq],
+                backgroundColor: ["#3b82f6", "#14b8a6", "#f59e0b", "#64748b"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    utilizacionChart = new Chart(utilCtx, {
+        type: "doughnut",
+        data: {
+            labels: ["Utilizado", "Disponible"],
+            datasets: [{
+                data: [Math.max(0, data.rho), Math.max(0, 1 - data.rho)],
+                backgroundColor: ["#2563eb", "#d1d5db"]
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: "68%",
+            plugins: { legend: { position: "bottom" } }
+        }
+    });
+
+    pnChart = new Chart(pnCtx, {
+        type: "bar",
+        data: {
+            labels: data.probabilidades.map((p) => `n=${p.n}`),
+            datasets: [{
+                label: "P(n)",
+                data: data.probabilidades.map((p) => p.pn * 100),
+                backgroundColor: "#3b82f6"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: (value) => `${value}%`
+                    }
                 }
             }
         }
