@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teoría de Tráfico y Colas</title>
+<title>Teor&iacute;a de Tr&aacute;fico y Colas</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%9A%A6%3C/text%3E%3C/svg%3E">
 
 <link rel="stylesheet" href="style.css">
@@ -15,14 +15,14 @@
 
 <nav class="navbar">
     <div class="navbar-inner">
-        <div class="navbar-title"><span class="nav-icon" aria-hidden="true">🚦</span> Teoría de Tráfico y Colas</div>
+        <div class="navbar-title"><span class="nav-icon" aria-hidden="true">&#128678;</span> Teor&iacute;a de Tr&aacute;fico y Colas</div>
         <button id="themeToggle" class="theme-toggle" type="button">Modo oscuro</button>
     </div>
 </nav>
 
 <div class="main">
 
-    <p id="estado" class="estado">Ingresa parametros y presiona Calcular.</p>
+    <p id="estado" class="estado">Ingresa parámetros y presiona Calcular.</p>
     <p class="sub">Calculadora de modelos M/M/1, M/M/s y M/M/1/K</p>
 
     <div class="dashboard-layout">
@@ -34,7 +34,7 @@
             <select id="modelo" onchange="cambiarFormulario()">
                 <option value="">-- Seleccionar modelo --</option>
                 <option value="mm1">M/M/1 | Una cola, un servidor</option>
-                <option value="mms">M/M/s | Una cola, múltiples servidores</option>
+                <option value="mms">M/M/s | Una cola, m&uacute;ltiples servidores</option>
                 <option value="mm1k">M/M/1/K | Una cola, un servidor, capacidad limitada</option>
             </select>
             <p id="modelo-desc" class="modelo-desc"></p>
@@ -59,7 +59,7 @@
             <table id="tabla">
                 <thead>
                     <tr>
-                        <th>S</th><th>ρ</th><th>P0</th><th>Lq</th><th>L</th>
+                        <th>S</th><th>&rho;</th><th>P0</th><th>Lq</th><th>L</th>
                         <th>Wq</th><th>W</th><th>Cs</th><th>Cw</th><th>Ct</th>
                     </tr>
                 </thead>
@@ -68,7 +68,7 @@
             <p id="tableLimitNotice" class="table-limit-notice" style="display: none;"></p>
         </div>
 
-        <h3 class="analisis-heading">Resultados del analisis</h3>
+        <h3 class="analisis-heading">Resultados del análisis</h3>
 
         <section id="analisisPanel" class="analisis-panel" aria-live="polite">
             <div class="analisis-bloques">
@@ -78,9 +78,9 @@
 
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
-                        <h4>Parametros utilizados</h4>
-                        <div class="param-line"><span>λ (Tasa de llegada)</span><strong id="paramLambda">-</strong></div>
-                        <div class="param-line"><span>μ (Tasa de servicio)</span><strong id="paramMu">-</strong></div>
+                        <h4>Parámetros utilizados</h4>
+                        <div class="param-line"><span>&lambda; (Tasa de llegada)</span><strong id="paramLambda">-</strong></div>
+                        <div class="param-line"><span>&mu; (Tasa de servicio)</span><strong id="paramMu">-</strong></div>
                         <div id="paramLineCs" class="param-line"><span>Cs (Costo de servicio)</span><strong id="paramCs">-</strong></div>
                         <div id="paramLineCw" class="param-line"><span>Cw (Costo de espera)</span><strong id="paramCw">-</strong></div>
                         <div class="param-line"><span>Modelo</span><strong id="paramModelo">-</strong></div>
@@ -91,11 +91,11 @@
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Metricas de rendimiento</h4>
+                            <h4>Métricas de rendimiento</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('metricas')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('metricasChart', 'metricas_rendimiento.pdf', 'Metricas de rendimiento')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('metricasChart', 'metricas_rendimiento.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('metricasChart', 'metricas_rendimiento.pdf', 'Métricas de rendimiento')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('metricasChart', 'metricas_rendimiento.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="metricasChart"></canvas>
@@ -105,11 +105,11 @@
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Factor de utilizacion</h4>
+                            <h4>Factor de utilización</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('utilizacion')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('utilizacionChart', 'factor_utilizacion.pdf', 'Factor de utilizacion')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('utilizacionChart', 'factor_utilizacion.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('utilizacionChart', 'factor_utilizacion.pdf', 'Factor de utilización')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('utilizacionChart', 'factor_utilizacion.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="utilizacionChart"></canvas>
@@ -119,11 +119,11 @@
                 <div id="pnCol" class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Distribucion de probabilidades P(n)</h4>
+                            <h4>Distribución de probabilidades P(n)</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('pn')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('pnChart', 'distribucion_pn.pdf', 'Distribucion P(n)')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('pnChart', 'distribucion_pn.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('pnChart', 'distribucion_pn.pdf', 'Distribución P(n)')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('pnChart', 'distribucion_pn.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <div id="pnChips" class="pn-chips"></div>
@@ -134,11 +134,11 @@
                 <div id="costosCol" class="analisis-col">
                     <article class="analisis-card section-card mini-card grafica-principal-card">
                         <div class="segment-header">
-                            <h4>Grafica de costos</h4>
+                            <h4>Gráfica de costos</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('costos')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica a PDF" onclick="exportarPDF('grafica', 'grafica_costos.pdf', 'Grafica de costos')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar grafica como imagen" onclick="exportarGrafica('grafica', 'grafica_costos.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('grafica', 'grafica_costos.pdf', 'Gráfica de costos')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('grafica', 'grafica_costos.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="grafica"></canvas>
@@ -166,7 +166,7 @@
 <!-- jsPDF (PDF) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- html2canvas (captura gráfica) -->
+<!-- html2canvas (captura gr&aacute;fica) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- XLSX con estilos (exportar Excel con encabezados coloreados) -->

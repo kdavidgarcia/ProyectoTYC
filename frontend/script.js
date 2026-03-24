@@ -1,4 +1,4 @@
-let chart = null;
+﻿let chart = null;
 let metricasChart = null;
 let utilizacionChart = null;
 let pnChart = null;
@@ -52,7 +52,7 @@ function aplicarTema(theme) {
 
     const themeToggle = document.getElementById("themeToggle");
     if (themeToggle) {
-        themeToggle.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+        themeToggle.textContent = isDark ? "\u2600\uFE0F Modo claro" : "\uD83C\uDF19 Modo oscuro";
     }
 }
 
@@ -60,11 +60,11 @@ function cambiarFormulario() {
     const modelo = document.getElementById("modelo").value;
     let html = `
         <div class="param-group">
-            <label for="lambda">λ (Tasa de llegadas):</label>
+            <label for="lambda">\u03BB (Tasa de llegadas):</label>
             <input id="lambda" type="number" min="0" step="any" placeholder="Ej: 5">
         </div>
         <div class="param-group">
-            <label for="mu">μ (Tasa de servicio):</label>
+            <label for="mu">\u03BC (Tasa de servicio):</label>
             <input id="mu" type="number" min="0" step="any" placeholder="Ej: 8">
         </div>
     `;
@@ -72,9 +72,9 @@ function cambiarFormulario() {
     let descripcion = "";
 
     if (modelo === "mm1") {
-        descripcion = "Una cola con un único servidor. λ debe ser menor a μ para estabilidad. Este modelo no solicita costos.";
+        descripcion = "Una cola con un \u00FAnico servidor. \u03BB debe ser menor a \u03BC para estabilidad. Este modelo no solicita costos.";
     } else if (modelo === "mms") {
-        descripcion = "Una cola con múltiples servidores en paralelo. Ingresa el número de servidores.";
+        descripcion = "Una cola con m\u00FAltiples servidores en paralelo. Ingresa el n\u00FAmero de servidores.";
         html += `
         <div class="param-group">
             <label for="Cs">Costo de servicio (Cs):</label>
@@ -85,12 +85,12 @@ function cambiarFormulario() {
             <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
         </div>
         <div class="param-group">
-            <label for="s_max">Número de servidores (s):</label>
+            <label for="s_max">N\u00FAmero de servidores (s):</label>
             <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 3">
         </div>
         `;
     } else if (modelo === "mm1k") {
-        descripcion = "Una cola con un servidor y capacidad máxima limitada (K clientes max).";
+        descripcion = "Una cola con un servidor y capacidad m\u00E1xima limitada (K clientes m\u00E1x.).";
         html += `
         <div class="param-group">
             <label for="Cs">Costo de servicio (Cs):</label>
@@ -101,7 +101,7 @@ function cambiarFormulario() {
             <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
         </div>
         <div class="param-group">
-            <label for="K">Capacidad máxima (K):</label>
+            <label for="K">Capacidad m\u00E1xima (K):</label>
             <input id="K" type="number" min="1" step="1" placeholder="Ej: 10">
         </div>
         `;
@@ -146,7 +146,7 @@ function limpiarVistaPorCambioModelo() {
 
     const estado = document.getElementById("estado");
     if (estado) {
-        estado.textContent = "Ingresa parametros y presiona Calcular.";
+        estado.textContent = "Ingresa parámetros y presiona Calcular.";
         estado.className = "estado";
     }
 }
@@ -183,12 +183,12 @@ async function calcular() {
 
     // Validaciones
     if (!data.lambda || !data.mu) {
-        mostrarMensaje("Completa λ y μ.", true);
+        mostrarMensaje("Completa \u03BB y \u03BC.", true);
         return;
     }
 
     if (data.lambda <= 0 || data.mu <= 0) {
-        mostrarMensaje("λ y μ deben ser mayores a cero.", true);
+        mostrarMensaje("\u03BB y \u03BC deben ser mayores a cero.", true);
         return;
     }
 
@@ -198,17 +198,17 @@ async function calcular() {
     }
 
     if (modelo !== "mm1" && (!Number.isFinite(data.Cs) || !Number.isFinite(data.Cw))) {
-        mostrarMensaje("Completa Cs y Cw con valores validos.", true);
+        mostrarMensaje("Completa Cs y Cw con valores válidos.", true);
         return;
     }
 
     if (modelo === "mms" && (!data.s_max || data.s_max < 1)) {
-        mostrarMensaje("Ingresa un número de servidores válido (≥ 1).", true);
+        mostrarMensaje("Ingresa un n\u00FAmero de servidores v\u00E1lido (>= 1).", true);
         return;
     }
 
     if (modelo === "mm1k" && (!data.K || data.K < 1)) {
-        mostrarMensaje("Ingresa una capacidad K válida (≥ 1).", true);
+        mostrarMensaje("Ingresa una capacidad K v\u00E1lida (>= 1).", true);
         return;
     }
 
@@ -240,7 +240,7 @@ async function calcular() {
             utilizacion: estadoAnalisis.utilizacion,
             pn: estadoAnalisis.pn
         });
-        mostrarMensaje("Calculo completado.", false);
+        mostrarMensaje("Cálculo completado.", false);
     } catch (error) {
         toggleAcciones(false);
         mostrarMensaje(`No se pudo calcular: ${error.message}`, true);
@@ -302,7 +302,7 @@ function actualizarAvisoLimiteTabla(modelo, totalResultados) {
     const mostrar = modelo === "mms" && totalResultados > 10;
     aviso.style.display = mostrar ? "block" : "none";
     aviso.textContent = mostrar
-        ? "Solo se muestran 10 resultados, si deseas ver mas puedes descargar el Excel."
+        ? "Solo se muestran 10 resultados; si deseas ver más, puedes descargar el Excel."
         : "";
 }
 
@@ -393,7 +393,7 @@ function limpiarAnalisis() {
         rows.innerHTML = construirFilasAnalisisVacias();
     }
     if (chips) {
-        chips.innerHTML = "<span class='chip-muted'>Sin resultados aun.</span>";
+        chips.innerHTML = "<span class='chip-muted'>Sin resultados aún.</span>";
     }
 
     const paramLambda = document.getElementById("paramLambda");
@@ -430,12 +430,12 @@ function limpiarAnalisis() {
 
 function construirFilasAnalisisVacias() {
     const metricas = [
-        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado" },
-        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema" },
-        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola" },
+        { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado" },
+        { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola" },
         { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
         { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
-        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes" }
+        { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes" }
     ];
 
     return metricas.map((m) => `
@@ -451,12 +451,12 @@ function construirFilasAnalisisVacias() {
 
 function construirFilasAnalisisInestable() {
     const metricas = [
-        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado" },
-        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema" },
-        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola" },
+        { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado" },
+        { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola" },
         { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
         { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
-        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes" }
+        { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes" }
     ];
 
     return metricas.map((m) => `
@@ -558,12 +558,12 @@ function renderizarAnalisis(filas, requestData) {
     const w = Number(fila[6]);
 
     const metricas = [
-        { nombre: "Factor de utilizacion (ρ)", desc: "Proporcion del tiempo que el servidor esta ocupado", valor: `${(rho * 100).toFixed(2)}%` },
-        { nombre: "Clientes en el sistema (L)", desc: "Numero promedio de clientes en el sistema", valor: formatearValor(l) },
-        { nombre: "Clientes en cola (Lq)", desc: "Numero promedio esperando en cola", valor: formatearValor(lq) },
+           { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado", valor: `${(rho * 100).toFixed(2)}%` },
+           { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema", valor: formatearValor(l) },
+           { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola", valor: formatearValor(lq) },
         { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema", valor: `${formatearValor(w)} unidades` },
         { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola", valor: `${formatearValor(wq)} unidades` },
-        { nombre: "Probabilidad sistema vacio (P0)", desc: "Probabilidad de que no haya clientes", valor: `${(p0 * 100).toFixed(4)}%` }
+           { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes", valor: `${(p0 * 100).toFixed(4)}%` }
     ];
 
     rows.innerHTML = metricas.map((m) => `
@@ -777,33 +777,33 @@ function obtenerCanvasIdPorTipo(tipo) {
 }
 
 function obtenerTituloPorTipo(tipo) {
-    if (tipo === "metricas") return "Metricas de rendimiento";
-    if (tipo === "utilizacion") return "Factor de utilizacion";
-    if (tipo === "pn") return "Distribucion de probabilidades P(n)";
-    return "Grafica de costos";
+    if (tipo === "metricas") return "Métricas de rendimiento";
+    if (tipo === "utilizacion") return "Factor de utilización";
+    if (tipo === "pn") return "Distribución de probabilidades P(n)";
+    return "Gráfica de costos";
 }
 
 async function exportarDatosGraficaExcel(tipo) {
     if (!exportState[tipo]) {
-        mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        mostrarMensaje("Primero genera la gráfica para exportar sus datos.", true);
         return;
     }
 
     if (!window.ExcelJS) {
-        mostrarMensaje("No se encontro ExcelJS para exportar la grafica en Excel.", true);
+        mostrarMensaje("No se encontró ExcelJS para exportar la gráfica en Excel.", true);
         return;
     }
 
     const targetChart = obtenerChartPorTipo(tipo);
     if (!targetChart || !targetChart.data) {
-        mostrarMensaje("Primero genera la grafica para exportar sus datos.", true);
+        mostrarMensaje("Primero genera la gráfica para exportar sus datos.", true);
         return;
     }
 
     const canvasId = obtenerCanvasIdPorTipo(tipo);
     const canvas = document.getElementById(canvasId);
     if (!canvas) {
-        mostrarMensaje("No se encontro el lienzo de la grafica para exportar.", true);
+        mostrarMensaje("No se encontró el lienzo de la gráfica para exportar.", true);
         return;
     }
 
@@ -852,7 +852,7 @@ async function exportarDatosGraficaExcel(tipo) {
     });
 
     const dataStartRow = 24;
-    ws.getCell(`A${dataStartRow - 1}`).value = "Datos de la grafica";
+    ws.getCell(`A${dataStartRow - 1}`).value = "Datos de la gráfica";
     ws.getCell(`A${dataStartRow - 1}`).font = { bold: true, size: 11 };
 
     const headerRow = ws.getRow(dataStartRow);
@@ -889,7 +889,7 @@ async function exportarDatosGraficaExcel(tipo) {
     setTimeout(() => URL.revokeObjectURL(link.href), 1500);
 }
 
-function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Grafica de costos") {
+function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Gráfica de costos") {
     const tipo = canvasId === "grafica"
         ? "costos"
         : canvasId === "metricasChart"
@@ -899,14 +899,14 @@ function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf"
                 : "pn";
 
     if (!exportState[tipo]) {
-        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        mostrarMensaje("Primero genera una gráfica para exportar.", true);
         return;
     }
 
     const canvas = document.getElementById(canvasId);
 
     if (!canvas) {
-        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        mostrarMensaje("Primero genera una gráfica para exportar.", true);
         return;
     }
 
@@ -952,14 +952,14 @@ function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.
                 : "pn";
 
     if (!exportState[tipo]) {
-        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        mostrarMensaje("Primero genera una gráfica para exportar.", true);
         return;
     }
 
     const canvas = document.getElementById(canvasId);
 
     if (!canvas) {
-        mostrarMensaje("Primero genera una grafica para exportar.", true);
+        mostrarMensaje("Primero genera una gráfica para exportar.", true);
         return;
     }
 
@@ -1020,7 +1020,7 @@ function mostrarMensaje(texto, isError) {
     }
 
     const mensajeFinal = !isError && /completado/i.test(texto)
-        ? `✅ ${texto}`
+           ? `\u2705 ${texto}`
         : texto;
 
     estado.textContent = mensajeFinal;
@@ -1036,4 +1036,5 @@ function formatearValor(valor) {
     }
     return valor.toFixed(4);
 }
+
 

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+﻿from flask import Flask, request, jsonify
 import math
 from flask_cors import CORS
 
@@ -122,7 +122,7 @@ def calcular():
     try:
         modelo = data.get("modelo")
         if modelo not in {"mm1", "mms", "mm1k"}:
-            return jsonify({"error": "Modelo invalido. Usa: mm1, mms o mm1k"}), 400
+            return jsonify({"error": "Modelo inválido. Usa: mm1, mms o mm1k"}), 400
 
         lambda_ = float(data.get("lambda", 0))
         mu = float(data.get("mu", 0))
@@ -134,7 +134,7 @@ def calcular():
             Cw = float(data.get("Cw", 0))
 
         if lambda_ < 0 or mu <= 0 or Cs < 0 or Cw < 0:
-            return jsonify({"error": "Verifica los parametros: mu > 0 y costos no negativos"}), 400
+            return jsonify({"error": "Verifica los parámetros: mu > 0 y costos no negativos"}), 400
 
         if modelo == "mm1":
             cola = ModeloMM1(lambda_, mu, Cs, Cw)
@@ -157,7 +157,7 @@ def calcular():
         return jsonify({"resultados": resultados})
 
     except (TypeError, ValueError) as e:
-        return jsonify({"error": f"Entradas invalidas: usa solo numeros. {str(e)}"}), 400
+        return jsonify({"error": f"Entradas inválidas: usa solo números. {str(e)}"}), 400
     except ZeroDivisionError:
         return jsonify({"error": "No se puede dividir por cero. Verifica mu y lambda"}), 400
     except Exception as e:
@@ -188,7 +188,7 @@ def analizar_probabilidades():
             K = int(data.get("K", 1))
             cola = ModeloMM1K(lambda_, mu, K, Cs, Cw)
         else:
-            return jsonify({"error": "Modelo invalido"}), 400
+            return jsonify({"error": "Modelo inválido"}), 400
 
         rho = lambda_ / mu if modelo == "mm1" else lambda_ / mu
         P0 = 1 - rho if modelo == "mm1" and rho < 1 else None
