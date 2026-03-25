@@ -563,8 +563,8 @@ function renderizarAnalisis(filas, requestData) {
         { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado", valor: `${(rho * 100).toFixed(2)}%` },
         { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema", valor: formatearValor(l) },
         { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola", valor: formatearValor(lq) },
-        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema", valor: `${formatearValor(w)} unidades` },
-        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola", valor: `${formatearValor(wq)} unidades` },
+        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema", valor: formatearUnidadTiempo(w) },
+        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola", valor: formatearUnidadTiempo(wq) },
         { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes", valor: `${(p0 * 100).toFixed(4)}%` }
     ];
 
@@ -1037,6 +1037,17 @@ function formatearValor(valor) {
         return String(valor);
     }
     return valor.toFixed(4);
+}
+
+function formatearUnidadTiempo(valor) {
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) {
+        return "-";
+    }
+
+    const valorFormateado = formatearValor(numero);
+    const esSingular = Math.abs(numero - 1) < 1e-9;
+    return `${valorFormateado} ${esSingular ? "unidad" : "unidades"} de tiempo`;
 }
 
 
