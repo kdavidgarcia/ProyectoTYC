@@ -15,7 +15,38 @@ const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.
 const API_URL = isLocalHost
     ? "http://127.0.0.1:5000/calcular"
     : `${RENDER_BASE_URL}/calcular`;
+const REQUEST_TIMEOUT_MS = 90000;
 const THEME_KEY = "queue_theme";
+
+async function postJsonWithTimeout(url, payload, timeoutMs = REQUEST_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        return await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+function parseJsonSafe(text) {
+    if (!text) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return {};
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarTema();
@@ -217,15 +248,9 @@ async function calcular() {
     setLoading(true);
     try {
         mostrarMensaje("Calculando...", false);
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
+        const response = await postJsonWithTimeout(API_URL, data);
+        const raw = await response.text();
+        const result = parseJsonSafe(raw);
 
         if (!response.ok) {
             throw new Error(result.error || "Error en el servidor");
@@ -245,7 +270,11 @@ async function calcular() {
         mostrarMensaje("Cálculo completado.", false);
     } catch (error) {
         toggleAcciones(false);
-        mostrarMensaje(`No se pudo calcular: ${error.message}`, true);
+        if (error.name === "AbortError") {
+            mostrarMensaje("No se pudo calcular: el servidor tardó demasiado en responder. Intenta de nuevo.", true);
+        } else {
+            mostrarMensaje(`No se pudo calcular: ${error.message}`, true);
+        }
     } finally {
         setLoading(false);
     }
