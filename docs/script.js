@@ -52,7 +52,9 @@ function aplicarTema(theme) {
 
     const themeToggle = document.getElementById("themeToggle");
     if (themeToggle) {
-        themeToggle.textContent = isDark ? "\u2600\uFE0F Modo claro" : "\uD83C\uDF19 Modo oscuro";
+        themeToggle.textContent = isDark ? "\u2600\uFE0F" : "\uD83C\uDF19";
+        themeToggle.setAttribute("title", isDark ? "Modo claro" : "Modo oscuro");
+        themeToggle.setAttribute("aria-label", isDark ? "Activar modo claro" : "Activar modo oscuro");
     }
 }
 
