@@ -11,11 +11,15 @@ const exportState = {
     pn: false
 };
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
+const LOCAL_API_URL = "http://127.0.0.1:5000/calcular";
+const RENDER_API_URL = `${RENDER_BASE_URL}/calcular`;
+const isFileProtocol = window.location.protocol === "file:";
 const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
-const API_URL = isLocalHost
-    ? "http://127.0.0.1:5000/calcular"
-    : `${RENDER_BASE_URL}/calcular`;
-const REQUEST_TIMEOUT_MS = 90000;
+const shouldTryLocalFirst = isLocalHost || isFileProtocol;
+const API_URL = shouldTryLocalFirst ? LOCAL_API_URL : RENDER_API_URL;
+const REQUEST_TIMEOUT_MS = 45000;
+const LOCAL_REQUEST_TIMEOUT_MS = 8000;
+const RETRYABLE_STATUS = new Set([502, 503, 504]);
 const THEME_KEY = "queue_theme";
 
 async function postJsonWithTimeout(url, payload, timeoutMs = REQUEST_TIMEOUT_MS) {
@@ -48,6 +52,67 @@ function parseJsonSafe(text) {
     }
 }
 
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function pingRenderInBackground() {
+    if (shouldTryLocalFirst) {
+        return;
+    }
+
+    try {
+        await fetch(RENDER_BASE_URL, {
+            method: "GET",
+            mode: "no-cors",
+            cache: "no-store"
+        });
+    } catch {
+        // Keep silent: this warm-up is best-effort only.
+    }
+}
+
+async function solicitarCalculo(data) {
+    const endpoints = shouldTryLocalFirst
+        ? [LOCAL_API_URL, RENDER_API_URL]
+        : [RENDER_API_URL];
+    let ultimoError = new Error("No se pudo conectar con el servidor.");
+
+    for (const endpoint of endpoints) {
+        const timeoutMs = endpoint === LOCAL_API_URL ? LOCAL_REQUEST_TIMEOUT_MS : REQUEST_TIMEOUT_MS;
+
+        for (let intento = 1; intento <= 2; intento += 1) {
+            try {
+                const response = await postJsonWithTimeout(endpoint, data, timeoutMs);
+                const raw = await response.text();
+                const result = parseJsonSafe(raw);
+
+                if (response.ok) {
+                    return result;
+                }
+
+                const mensaje = result.error || "Error en el servidor";
+                if (RETRYABLE_STATUS.has(response.status) && intento === 1) {
+                    await delay(1200);
+                    continue;
+                }
+
+                throw new Error(mensaje);
+            } catch (error) {
+                if (error.name === "AbortError" && intento === 1) {
+                    await delay(1200);
+                    continue;
+                }
+
+                ultimoError = error;
+                break;
+            }
+        }
+    }
+
+    throw ultimoError;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     inicializarTema();
 
@@ -58,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cambiarFormulario();
     toggleAcciones(false);
     limpiarAnalisis();
+    pingRenderInBackground();
 });
 
 function inicializarTema() {
@@ -248,13 +314,7 @@ async function calcular() {
     setLoading(true);
     try {
         mostrarMensaje("Calculando...", false);
-        const response = await postJsonWithTimeout(API_URL, data);
-        const raw = await response.text();
-        const result = parseJsonSafe(raw);
-
-        if (!response.ok) {
-            throw new Error(result.error || "Error en el servidor");
-        }
+        const result = await solicitarCalculo(data);
 
         const filas = result.resultados || [];
         mostrarTabla(filas, modelo);
@@ -271,7 +331,9 @@ async function calcular() {
     } catch (error) {
         toggleAcciones(false);
         if (error.name === "AbortError") {
-            mostrarMensaje("No se pudo calcular: el servidor tardó demasiado en responder. Intenta de nuevo.", true);
+            mostrarMensaje("No se pudo calcular: el servidor tardó demasiado en responder (posible arranque en frío). Intenta de nuevo en unos segundos.", true);
+        } else if (error.name === "TypeError") {
+            mostrarMensaje(`No se pudo calcular: no hay conexión con la API (${API_URL}).`, true);
         } else {
             mostrarMensaje(`No se pudo calcular: ${error.message}`, true);
         }
