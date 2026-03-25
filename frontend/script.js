@@ -13,12 +13,11 @@ const exportState = {
 const RENDER_BASE_URL = "https://proyectotyc.onrender.com";
 const LOCAL_API_URL = "http://127.0.0.1:5000/calcular";
 const RENDER_API_URL = `${RENDER_BASE_URL}/calcular`;
-const isFileProtocol = window.location.protocol === "file:";
 const isLocalHost = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost";
-const shouldTryLocalFirst = isLocalHost || isFileProtocol;
+const shouldTryLocalFirst = isLocalHost;
 const API_URL = shouldTryLocalFirst ? LOCAL_API_URL : RENDER_API_URL;
-const REQUEST_TIMEOUT_MS = 45000;
-const LOCAL_REQUEST_TIMEOUT_MS = 8000;
+const REQUEST_TIMEOUT_MS = 120000;
+const LOCAL_REQUEST_TIMEOUT_MS = 2500;
 const RETRYABLE_STATUS = new Set([502, 503, 504]);
 const THEME_KEY = "queue_theme";
 
