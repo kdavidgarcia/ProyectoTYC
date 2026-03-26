@@ -519,9 +519,7 @@ tr:hover {
 .param-desc {
     margin: 2px 0 0;
     color: #64748b;
-    font-size: 0.87rem;
-    line-height: 1.35;
-    font-weight: 500;
+    font-size: 0.83rem;
 }
 
 .param-line:last-child {
