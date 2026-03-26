@@ -851,7 +851,7 @@ function exportarExcel() {
 
     ws["!cols"] = encabezados.map(() => ({ wch: 12 }));
     XLSX.utils.book_append_sheet(wb, ws, "Resultados");
-    XLSX.writeFile(wb, "resultados_teoria_colas.xlsx", { cellStyles: true, compression: true });
+    XLSX.writeFile(wb, agregarTimestampNombreArchivo("resultados_teoria_colas.xlsx"), { cellStyles: true, compression: true });
 }
 
 function obtenerChartPorTipo(tipo) {
@@ -873,6 +873,30 @@ function obtenerTituloPorTipo(tipo) {
     if (tipo === "utilizacion") return "Factor de utilización";
     if (tipo === "pn") return "Distribución de probabilidades P(n)";
     return "Gráfica de costos";
+}
+
+function obtenerTimestampArchivo() {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = String(now.getFullYear());
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `${dd}${mm}${yyyy}${hh}${min}${ss}`;
+}
+
+function agregarTimestampNombreArchivo(fileName) {
+    const timestamp = obtenerTimestampArchivo();
+    const dotIndex = fileName.lastIndexOf(".");
+
+    if (dotIndex <= 0) {
+        return `${fileName}_${timestamp}`;
+    }
+
+    const nombre = fileName.slice(0, dotIndex);
+    const extension = fileName.slice(dotIndex);
+    return `${nombre}_${timestamp}${extension}`;
 }
 
 async function exportarDatosGraficaExcel(tipo) {
@@ -976,7 +1000,7 @@ async function exportarDatosGraficaExcel(tipo) {
     );
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `grafica_${tipo}_teoria_colas.xlsx`;
+    link.download = agregarTimestampNombreArchivo(`grafica_${tipo}_teoria_colas.xlsx`);
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 1500);
 }
@@ -1031,7 +1055,7 @@ function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf"
 
     pdf.text(titulo, margin, 8);
     pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
-    pdf.save(fileName);
+    pdf.save(agregarTimestampNombreArchivo(fileName));
 }
 
 function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.png") {
@@ -1057,7 +1081,7 @@ function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png", 1.0);
-    link.download = fileName;
+    link.download = agregarTimestampNombreArchivo(fileName);
     link.click();
 }
 
