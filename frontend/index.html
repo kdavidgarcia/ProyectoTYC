@@ -87,12 +87,48 @@
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <h4>Parámetros utilizados</h4>
-                        <div class="param-line"><span>&lambda; (Tasa de llegada)</span><strong id="paramLambda">-</strong></div>
-                        <div class="param-line"><span>&mu; (Tasa de servicio)</span><strong id="paramMu">-</strong></div>
-                        <div id="paramLineCs" class="param-line"><span>Cs (Costo de servicio)</span><strong id="paramCs">-</strong></div>
-                        <div id="paramLineCw" class="param-line"><span>Cw (Costo de espera)</span><strong id="paramCw">-</strong></div>
-                        <div class="param-line"><span>Modelo</span><strong id="paramModelo">-</strong></div>
-                        <div class="param-line"><span>Estado del sistema</span><strong id="estadoSistema">-</strong></div>
+                        <div class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">&lambda; (Tasa de llegada)</p>
+                                <p class="param-desc">Promedio de clientes que llegan por unidad de tiempo.</p>
+                            </div>
+                            <strong id="paramLambda">-</strong>
+                        </div>
+                        <div class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">&mu; (Tasa de servicio)</p>
+                                <p class="param-desc">Promedio de clientes atendidos por unidad de tiempo.</p>
+                            </div>
+                            <strong id="paramMu">-</strong>
+                        </div>
+                        <div id="paramLineCs" class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">Cs (Costo de servicio)</p>
+                                <p class="param-desc">Costo asociado a mantener un servidor operando.</p>
+                            </div>
+                            <strong id="paramCs">-</strong>
+                        </div>
+                        <div id="paramLineCw" class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">Cw (Costo de espera)</p>
+                                <p class="param-desc">Costo por cliente en cola o esperando atención.</p>
+                            </div>
+                            <strong id="paramCw">-</strong>
+                        </div>
+                        <div class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">Modelo</p>
+                                <p class="param-desc">Tipo de sistema de colas seleccionado para el análisis.</p>
+                            </div>
+                            <strong id="paramModelo">-</strong>
+                        </div>
+                        <div class="param-line">
+                            <div class="param-text">
+                                <p class="param-nombre">Estado del sistema</p>
+                                <p class="param-desc">Indica si la cola tiende a estabilizarse o crecer sin límite.</p>
+                            </div>
+                            <strong id="estadoSistema">-</strong>
+                        </div>
                     </article>
                 </div>
 

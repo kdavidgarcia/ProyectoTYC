@@ -499,13 +499,29 @@ tr:hover {
 
 .param-line {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 10px;
-    padding: 8px 0;
+    padding: 10px 0;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.param-text {
+    flex: 1;
+}
+
+.param-nombre {
+    margin: 0;
     font-size: 1.05rem;
     font-weight: 700;
+}
+
+.param-desc {
+    margin: 2px 0 0;
+    color: #64748b;
+    font-size: 0.87rem;
+    line-height: 1.35;
+    font-weight: 500;
 }
 
 .param-line:last-child {
@@ -513,6 +529,7 @@ tr:hover {
 }
 
 .param-line strong {
+    align-self: center;
     color: #d97706;
     font-size: 1.12rem;
     font-weight: 800;
