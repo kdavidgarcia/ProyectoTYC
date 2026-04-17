@@ -158,48 +158,48 @@ function cambiarFormulario() {
     const modelo = document.getElementById("modelo").value;
     let html = `
         <div class="param-group">
-            <label for="lambda">\u03BB (Tasa de llegadas):</label>
-            <input id="lambda" type="number" min="0" step="any" placeholder="Ej: 5">
+            <label for="lambda">\u03BB (Clientes que llegan por hora):</label>
+            <input id="lambda" type="number" min="0" step="any" placeholder="Ej: 24">
         </div>
         <div class="param-group">
-            <label for="mu">\u03BC (Tasa de servicio):</label>
-            <input id="mu" type="number" min="0" step="any" placeholder="Ej: 8">
+            <label for="mu">\u03BC (Clientes atendidos por cajero por hora):</label>
+            <input id="mu" type="number" min="0" step="any" placeholder="Ej: 30">
         </div>
     `;
 
     let descripcion = "";
 
     if (modelo === "mm1") {
-        descripcion = "Una cola con un \u00FAnico servidor. \u03BB debe ser menor a \u03BC para estabilidad. Este modelo no solicita costos.";
+        descripcion = "Escenario base con 1 cajero. \u03BB debe ser menor a \u03BC para estabilidad. Se usa para medir la espera actual.";
     } else if (modelo === "mms") {
-        descripcion = "Una cola con m\u00FAltiples servidores en paralelo. Ingresa el n\u00FAmero de servidores.";
+        descripcion = "Escenario de mejora con varios cajeros en paralelo. Compara costo de operacion versus tiempo de espera.";
         html += `
         <div class="param-group">
             <label for="Cs">Costo de servicio (Cs):</label>
-            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 10">
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 80">
         </div>
         <div class="param-group">
             <label for="Cw">Costo de espera (Cw):</label>
-            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 50">
         </div>
         <div class="param-group">
-            <label for="s_max">N\u00FAmero de servidores (s):</label>
-            <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 3">
+            <label for="s_max">Numero maximo de cajeros a evaluar (s):</label>
+            <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 5">
         </div>
         `;
     } else if (modelo === "mm1k") {
-        descripcion = "Una cola con un servidor y capacidad m\u00E1xima limitada (K clientes m\u00E1x.).";
+        descripcion = "Escenario con aforo limitado en sucursal: calcula bloqueo cuando el sistema llega a su capacidad K.";
         html += `
         <div class="param-group">
             <label for="Cs">Costo de servicio (Cs):</label>
-            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 10">
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 80">
         </div>
         <div class="param-group">
             <label for="Cw">Costo de espera (Cw):</label>
-            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 5">
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 50">
         </div>
         <div class="param-group">
-            <label for="K">Capacidad m\u00E1xima (K):</label>
+            <label for="K">Capacidad maxima del sistema (K):</label>
             <input id="K" type="number" min="1" step="1" placeholder="Ej: 10">
         </div>
         `;
@@ -244,7 +244,7 @@ function limpiarVistaPorCambioModelo() {
 
     const estado = document.getElementById("estado");
     if (estado) {
-        estado.textContent = "Ingresa parámetros y presiona Calcular.";
+        estado.textContent = "Define el escenario de hora pico y presiona Calcular.";
         estado.className = "estado";
     }
 }
@@ -281,12 +281,12 @@ async function calcular() {
 
     // Validaciones
     if (!data.lambda || !data.mu) {
-        mostrarMensaje("Completa \u03BB y \u03BC.", true);
+        mostrarMensaje("Completa \u03BB y \u03BC para el escenario.", true);
         return;
     }
 
     if (data.lambda <= 0 || data.mu <= 0) {
-        mostrarMensaje("\u03BB y \u03BC deben ser mayores a cero.", true);
+        mostrarMensaje("\u03BB y \u03BC deben ser mayores a cero (clientes por hora).", true);
         return;
     }
 
@@ -301,18 +301,18 @@ async function calcular() {
     }
 
     if (modelo === "mms" && (!data.s_max || data.s_max < 1)) {
-        mostrarMensaje("Ingresa un n\u00FAmero de servidores v\u00E1lido (>= 1).", true);
+        mostrarMensaje("Ingresa un numero valido de cajeros (s >= 1).", true);
         return;
     }
 
     if (modelo === "mm1k" && (!data.K || data.K < 1)) {
-        mostrarMensaje("Ingresa una capacidad K v\u00E1lida (>= 1).", true);
+        mostrarMensaje("Ingresa una capacidad K valida (K >= 1).", true);
         return;
     }
 
     setLoading(true);
     try {
-        mostrarMensaje("Calculando...", false);
+        mostrarMensaje("Analizando escenario de atencion...", false);
         const result = await solicitarCalculo(data);
 
         const filas = result.resultados || [];
@@ -326,7 +326,7 @@ async function calcular() {
             utilizacion: estadoAnalisis.utilizacion,
             pn: estadoAnalisis.pn
         });
-        mostrarMensaje("Cálculo completado.", false);
+        mostrarMensaje("Analisis completado.", false);
     } catch (error) {
         toggleAcciones(false);
         if (error.name === "AbortError") {
@@ -394,7 +394,7 @@ function actualizarAvisoLimiteTabla(modelo, totalResultados) {
     const mostrar = modelo === "mms" && totalResultados > 10;
     aviso.style.display = mostrar ? "block" : "none";
     aviso.textContent = mostrar
-        ? "Solo se muestran 10 resultados; si deseas ver más, puedes descargar el Excel."
+        ? "Solo se muestran 10 escenarios; descarga Excel para ver el comparativo completo."
         : "";
 }
 
@@ -406,7 +406,7 @@ function graficar(datos) {
 
     datos.forEach((fila) => {
         if (fila[1] !== "Inestable") {
-            labels.push(`S=${fila[0]}`);
+            labels.push(`Cajeros=${fila[0]}`);
             costoServicio.push(Number(fila[7]));
             costoEspera.push(Number(fila[8]));
             costoTotal.push(Number(fila[9]));
@@ -430,21 +430,21 @@ function graficar(datos) {
             labels: labelsFinales,
             datasets: [
                 {
-                    label: "Costo Servicio",
+                    label: "Costo de servicio",
                     data: costoServicioFinal,
                     borderColor: tieneDatos ? "#1f77b4" : "#cbd5e1",
                     backgroundColor: tieneDatos ? "rgba(31,119,180,0.2)" : "rgba(203,213,225,0.25)",
                     tension: 0.2
                 },
                 {
-                    label: "Costo Espera",
+                    label: "Costo de espera",
                     data: costoEsperaFinal,
                     borderColor: tieneDatos ? "#ff7f0e" : "#cbd5e1",
                     backgroundColor: tieneDatos ? "rgba(255,127,14,0.2)" : "rgba(203,213,225,0.25)",
                     tension: 0.2
                 },
                 {
-                    label: "Costo Total",
+                    label: "Costo total",
                     data: costoTotalFinal,
                     borderColor: tieneDatos ? "#2ca02c" : "#cbd5e1",
                     backgroundColor: tieneDatos ? "rgba(44,160,44,0.2)" : "rgba(203,213,225,0.25)",
@@ -522,12 +522,12 @@ function limpiarAnalisis() {
 
 function construirFilasAnalisisVacias() {
     const metricas = [
-        { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado" },
-        { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema" },
-        { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola" },
-        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
-        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
-        { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes" }
+        { nombre: "Factor de utilizacion (rho)", desc: "Fraccion del tiempo en que la caja permanece ocupada" },
+        { nombre: "Clientes en el sistema (L)", desc: "Promedio total de clientes dentro del sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Promedio de clientes esperando en fila" },
+        { nombre: "Tiempo total (W)", desc: "Tiempo promedio desde llegada hasta salida" },
+        { nombre: "Tiempo de espera (Wq)", desc: "Tiempo promedio solo en fila" },
+        { nombre: "Probabilidad de sistema vacio (P0)", desc: "Probabilidad de no tener clientes en el sistema" }
     ];
 
     return metricas.map((m) => `
@@ -543,12 +543,12 @@ function construirFilasAnalisisVacias() {
 
 function construirFilasAnalisisInestable() {
     const metricas = [
-        { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado" },
-        { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema" },
-        { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola" },
-        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema" },
-        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola" },
-        { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes" }
+        { nombre: "Factor de utilizacion (rho)", desc: "Fraccion del tiempo en que la caja permanece ocupada" },
+        { nombre: "Clientes en el sistema (L)", desc: "Promedio total de clientes dentro del sistema" },
+        { nombre: "Clientes en cola (Lq)", desc: "Promedio de clientes esperando en fila" },
+        { nombre: "Tiempo total (W)", desc: "Tiempo promedio desde llegada hasta salida" },
+        { nombre: "Tiempo de espera (Wq)", desc: "Tiempo promedio solo en fila" },
+        { nombre: "Probabilidad de sistema vacio (P0)", desc: "Probabilidad de no tener clientes en el sistema" }
     ];
 
     return metricas.map((m) => `
@@ -621,7 +621,7 @@ function renderizarAnalisis(filas, requestData) {
         rows.innerHTML = esInestable ? construirFilasAnalisisInestable() : construirFilasAnalisisVacias();
         chips.innerHTML = esInestable
             ? "<span class='chip-muted'>Sistema inestable: no se pueden calcular probabilidades P(n).</span>"
-            : "<span class='chip-muted'>No disponible para sistema inestable.</span>";
+            : "<span class='chip-muted'>No hay datos para diagnostico en este escenario.</span>";
 
         const paramModelo = document.getElementById("paramModelo");
         const estadoSistema = document.getElementById("estadoSistema");
@@ -648,15 +648,33 @@ function renderizarAnalisis(filas, requestData) {
     const l = Number(fila[4]);
     const wq = Number(fila[5]);
     const w = Number(fila[6]);
+    const k = Number(requestData.K);
+    const pk = requestData.modelo === "mm1k" && Number.isInteger(k) && k >= 1
+        ? p0 * (rho ** k)
+        : null;
+    const bloqueadosHora = Number.isFinite(pk) ? Number(requestData.lambda) * pk : null;
 
     const metricas = [
-           { nombre: "Factor de utilización (ρ)", desc: "Proporción del tiempo que el servidor está ocupado", valor: `${(rho * 100).toFixed(2)}%` },
-           { nombre: "Clientes en el sistema (L)", desc: "Número promedio de clientes en el sistema", valor: formatearValor(l) },
-           { nombre: "Clientes en cola (Lq)", desc: "Número promedio esperando en cola", valor: formatearValor(lq) },
-        { nombre: "Tiempo en el sistema (W)", desc: "Tiempo promedio que un cliente pasa en el sistema", valor: formatearUnidadTiempo(w) },
-        { nombre: "Tiempo en cola (Wq)", desc: "Tiempo promedio que un cliente espera en cola", valor: formatearUnidadTiempo(wq) },
-           { nombre: "Probabilidad sistema vacío (P0)", desc: "Probabilidad de que no haya clientes", valor: `${(p0 * 100).toFixed(4)}%` }
+        { nombre: "Factor de utilizacion (rho)", desc: "Fraccion del tiempo en que la caja esta ocupada", valor: `${(rho * 100).toFixed(2)}%` },
+        { nombre: "Clientes en el sistema (L)", desc: "Promedio total de clientes dentro del sistema", valor: formatearValor(l) },
+        { nombre: "Clientes en cola (Lq)", desc: "Promedio de clientes esperando en fila", valor: formatearValor(lq) },
+        { nombre: "Tiempo total (W)", desc: "Tiempo promedio desde llegada hasta salida", valor: formatearUnidadTiempo(w) },
+        { nombre: "Tiempo de espera (Wq)", desc: "Tiempo promedio solo en fila", valor: formatearUnidadTiempo(wq) },
+        { nombre: "Probabilidad de sistema vacio (P0)", desc: "Probabilidad de no tener clientes en el sistema", valor: `${(p0 * 100).toFixed(4)}%` }
     ];
+
+    if (Number.isFinite(pk)) {
+        metricas.push({
+            nombre: "Probabilidad de bloqueo P(K)",
+            desc: "Probabilidad de que un cliente llegue con el sistema lleno",
+            valor: `${(pk * 100).toFixed(4)}%`
+        });
+        metricas.push({
+            nombre: "Clientes bloqueados por hora",
+            desc: "Estimacion de clientes que no logran ingresar por aforo",
+            valor: formatearValor(bloqueadosHora)
+        });
+    }
 
     rows.innerHTML = metricas.map((m) => `
         <div class="analisis-row">
@@ -670,7 +688,7 @@ function renderizarAnalisis(filas, requestData) {
 
     const probabilidades = construirProbabilidades(requestData.modelo, p0, rho, Number(requestData.K));
     if (probabilidades.length === 0) {
-        chips.innerHTML = "<span class='chip-muted'>P(n) detallada disponible para M/M/1 y M/M/1/K.</span>";
+        chips.innerHTML = "<span class='chip-muted'>P(n) detallada disponible para los escenarios M/M/1 y M/M/1/K.</span>";
     } else {
         chips.innerHTML = probabilidades.map((p) => `<span class="pn-chip">P(${p.n}) = ${(p.pn * 100).toFixed(2)}%</span>`).join("");
     }
@@ -735,9 +753,9 @@ function renderizarGraficasAnalisis(data) {
     metricasChart = new Chart(metricasCtx, {
         type: "bar",
         data: {
-            labels: ["L", "Lq", "W", "Wq"],
+            labels: ["Clientes en sistema (L)", "Clientes en cola (Lq)", "Tiempo total (W)", "Espera (Wq)"],
             datasets: [{
-                label: "Valor",
+                label: "Indicadores del escenario",
                 data: [data.l, data.lq, data.w, data.wq],
                 backgroundColor: ["#3b82f6", "#14b8a6", "#f59e0b", "#64748b"]
             }]
@@ -751,7 +769,7 @@ function renderizarGraficasAnalisis(data) {
     utilizacionChart = new Chart(utilCtx, {
         type: "doughnut",
         data: {
-            labels: ["Utilizado", "Disponible"],
+            labels: ["Tiempo ocupado", "Capacidad libre"],
             datasets: [{
                 data: [Math.max(0, data.rho), Math.max(0, 1 - data.rho)],
                 backgroundColor: ["#f59e0b", "#d1d5db"]
@@ -851,7 +869,7 @@ function exportarExcel() {
 
     ws["!cols"] = encabezados.map(() => ({ wch: 12 }));
     XLSX.utils.book_append_sheet(wb, ws, "Resultados");
-    XLSX.writeFile(wb, agregarTimestampNombreArchivo("resultados_teoria_colas.xlsx"), { cellStyles: true, compression: true });
+    XLSX.writeFile(wb, agregarTimestampNombreArchivo("resultados_sucursal_bancaria.xlsx"), { cellStyles: true, compression: true });
 }
 
 function obtenerChartPorTipo(tipo) {
@@ -869,10 +887,10 @@ function obtenerCanvasIdPorTipo(tipo) {
 }
 
 function obtenerTituloPorTipo(tipo) {
-    if (tipo === "metricas") return "Métricas de rendimiento";
-    if (tipo === "utilizacion") return "Factor de utilización";
-    if (tipo === "pn") return "Distribución de probabilidades P(n)";
-    return "Gráfica de costos";
+    if (tipo === "metricas") return "Metricas de atencion";
+    if (tipo === "utilizacion") return "Ocupacion del sistema";
+    if (tipo === "pn") return "Distribucion de clientes P(n)";
+    return "Costos del escenario";
 }
 
 function obtenerTimestampArchivo() {
@@ -1000,12 +1018,12 @@ async function exportarDatosGraficaExcel(tipo) {
     );
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = agregarTimestampNombreArchivo(`grafica_${tipo}_teoria_colas.xlsx`);
+    link.download = agregarTimestampNombreArchivo(`grafica_${tipo}_sucursal_bancaria.xlsx`);
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 1500);
 }
 
-function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf", titulo = "Gráfica de costos") {
+function exportarPDF(canvasId = "grafica", fileName = "grafica_sucursal_bancaria.pdf", titulo = "Costos del escenario") {
     const tipo = canvasId === "grafica"
         ? "costos"
         : canvasId === "metricasChart"
@@ -1058,7 +1076,7 @@ function exportarPDF(canvasId = "grafica", fileName = "grafica_teoria_colas.pdf"
     pdf.save(agregarTimestampNombreArchivo(fileName));
 }
 
-function exportarGrafica(canvasId = "grafica", fileName = "grafica_teoria_colas.png") {
+function exportarGrafica(canvasId = "grafica", fileName = "grafica_sucursal_bancaria.png") {
     const tipo = canvasId === "grafica"
         ? "costos"
         : canvasId === "metricasChart"
@@ -1159,9 +1177,12 @@ function formatearUnidadTiempo(valor) {
         return "-";
     }
 
-    const valorFormateado = formatearValor(numero);
-    const esSingular = Math.abs(numero - 1) < 1e-9;
-    return `${valorFormateado} ${esSingular ? "unidad" : "unidades"} de tiempo`;
+    const horas = formatearValor(numero);
+    if (numero < 1) {
+        const minutos = (numero * 60).toFixed(2);
+        return `${minutos} min (${horas} h)`;
+    }
+    return `${horas} h`;
 }
 
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teor&iacute;a de Tr&aacute;fico y Colas</title>
+<title>Simulador de Colas para Ventanilla Bancaria</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%9A%A6%3C/text%3E%3C/svg%3E">
 
 <link rel="stylesheet" href="style.css">
@@ -15,27 +15,41 @@
 
 <nav class="navbar">
     <div class="navbar-inner">
-        <div class="navbar-title"><span class="nav-icon" aria-hidden="true">&#128678;</span> Teor&iacute;a de Tr&aacute;fico y Colas</div>
+        <div class="navbar-title"><span class="nav-icon" aria-hidden="true">&#128678;</span> Simulador de Colas para Ventanilla Bancaria</div>
         <button id="themeToggle" class="theme-toggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌙</button>
     </div>
 </nav>
 
 <div class="main">
 
-    <p id="estado" class="estado">Ingresa parámetros y presiona Calcular.</p>
-    <p class="sub">Calculadora de modelos M/M/1, M/M/s y M/M/1/K</p>
+    <p id="estado" class="estado">Define el escenario de hora pico y presiona Calcular.</p>
+    <p class="sub">Caso de estudio: atenci&oacute;n en sucursal bancaria con modelos M/M/1, M/M/s y M/M/1/K</p>
+
+    <section class="contexto-banner section-card">
+        <h2>Problema operativo a resolver</h2>
+        <p>
+            En hora pico, una sucursal bancaria presenta filas largas, sobrecarga de caja y posible p&eacute;rdida de clientes.
+            Este simulador compara escenarios para reducir espera y costo total sin sobredimensionar personal.
+        </p>
+        <div class="contexto-grid">
+            <div class="contexto-item"><strong>Entrada clave:</strong> &lambda; (llegadas/hora), &mu; (atenciones/hora)</div>
+            <div class="contexto-item"><strong>Decisi&oacute;n:</strong> cu&aacute;ntos cajeros abrir (s)</div>
+            <div class="contexto-item"><strong>Restricci&oacute;n:</strong> capacidad m&aacute;xima del sistema (K)</div>
+            <div class="contexto-item"><strong>Meta:</strong> minimizar espera, bloqueo y costo</div>
+        </div>
+    </section>
 
     <div class="dashboard-layout">
 
     <section class="card section-card input-card">
 
         <div class="modelo-selector">
-            <label for="modelo">Selecciona el modelo:</label>
+            <label for="modelo">Selecciona el modelo del escenario:</label>
             <select id="modelo" onchange="cambiarFormulario()">
                 <option value="">-- Seleccionar modelo --</option>
-                <option value="mm1">M/M/1 | Una cola, un servidor</option>
-                <option value="mms">M/M/s | Una cola, m&uacute;ltiples servidores</option>
-                <option value="mm1k">M/M/1/K | Una cola, un servidor, capacidad limitada</option>
+                <option value="mm1">M/M/1 | Una fila, un cajero</option>
+                <option value="mms">M/M/s | Una fila, varios cajeros</option>
+                <option value="mm1k">M/M/1/K | Una fila, un cajero, aforo limitado</option>
             </select>
             <p id="modelo-desc" class="modelo-desc"></p>
         </div>
@@ -47,11 +61,11 @@
     </section>
 
     <section class="resultados section-card">
-        <h2>Resultados</h2>
+        <h2>Resultados operativos</h2>
 
         <div class="table-wrap">
             <div class="segment-header">
-                <h3>Tabla de resultados</h3>
+                <h3>Comparativo de escenarios de atenci&oacute;n</h3>
                 <div class="icon-actions">
                     <button type="button" class="icon-btn" title="Exportar tabla a Excel" onclick="exportarExcel()"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
                 </div>
@@ -59,16 +73,16 @@
             <table id="tabla">
                 <thead>
                     <tr>
-                        <th title="Número de servidores">S</th>
-                        <th title="Factor de utilización del sistema">&rho;</th>
-                        <th title="Probabilidad de sistema vacío">P0</th>
-                        <th title="Número promedio de clientes en cola">Lq</th>
-                        <th title="Número promedio de clientes en el sistema">L</th>
-                        <th title="Tiempo promedio de espera en cola">Wq</th>
-                        <th title="Tiempo promedio en el sistema">W</th>
-                        <th title="Costo de servicio">Cs</th>
-                        <th title="Costo de espera">Cw</th>
-                        <th title="Costo total">Ct</th>
+                        <th title="Cajeros activos en el escenario">s</th>
+                        <th title="Factor de utilizaci&oacute;n del sistema">&rho;</th>
+                        <th title="Probabilidad de sistema vac&iacute;o">P0</th>
+                        <th title="Clientes promedio en cola">Lq</th>
+                        <th title="Clientes promedio en el sistema">L</th>
+                        <th title="Tiempo promedio de espera">Wq</th>
+                        <th title="Tiempo promedio total en sistema">W</th>
+                        <th title="Costo de servicio por escenario">Cs</th>
+                        <th title="Costo de espera acumulado">Cw</th>
+                        <th title="Costo total del escenario">Ct</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -76,7 +90,7 @@
             <p id="tableLimitNotice" class="table-limit-notice" style="display: none;"></p>
         </div>
 
-        <h3 class="analisis-heading">Resultados del análisis</h3>
+        <h3 class="analisis-heading">Diagn&oacute;stico del sistema en hora pico</h3>
 
         <section id="analisisPanel" class="analisis-panel" aria-live="polite">
             <div class="analisis-bloques">
@@ -86,46 +100,46 @@
 
                 <div class="analisis-col">
                     <article id="parametrosCard" class="analisis-card section-card mini-card">
-                        <h4>Parámetros utilizados</h4>
+                        <h4>Par&aacute;metros del caso</h4>
                         <div class="param-line">
                             <div class="param-text">
-                                <p class="param-nombre">&lambda; (Tasa de llegada)</p>
-                                <p class="param-desc">Promedio de clientes que llegan por unidad de tiempo.</p>
+                                <p class="param-nombre">&lambda; (Llegadas por hora)</p>
+                                <p class="param-desc">Promedio de clientes que llegan a la sucursal por hora.</p>
                             </div>
                             <strong id="paramLambda">-</strong>
                         </div>
                         <div class="param-line">
                             <div class="param-text">
-                                <p class="param-nombre">&mu; (Tasa de servicio)</p>
-                                <p class="param-desc">Promedio de clientes atendidos por unidad de tiempo.</p>
+                                <p class="param-nombre">&mu; (Atenciones por hora)</p>
+                                <p class="param-desc">Promedio de clientes atendidos por cajero en una hora.</p>
                             </div>
                             <strong id="paramMu">-</strong>
                         </div>
                         <div id="paramLineCs" class="param-line">
                             <div class="param-text">
                                 <p class="param-nombre">Cs (Costo de servicio)</p>
-                                <p class="param-desc">Costo asociado a mantener un servidor operando.</p>
+                                <p class="param-desc">Costo de mantener habilitado un cajero en el turno analizado.</p>
                             </div>
                             <strong id="paramCs">-</strong>
                         </div>
                         <div id="paramLineCw" class="param-line">
                             <div class="param-text">
                                 <p class="param-nombre">Cw (Costo de espera)</p>
-                                <p class="param-desc">Costo por cliente en cola o esperando atención.</p>
+                                <p class="param-desc">Costo asociado al tiempo de espera de los clientes.</p>
                             </div>
                             <strong id="paramCw">-</strong>
                         </div>
                         <div class="param-line">
                             <div class="param-text">
                                 <p class="param-nombre">Modelo</p>
-                                <p class="param-desc">Tipo de sistema de colas seleccionado para el análisis.</p>
+                                <p class="param-desc">Configuraci&oacute;n del sistema usada en el diagn&oacute;stico.</p>
                             </div>
                             <strong id="paramModelo">-</strong>
                         </div>
                         <div class="param-line">
                             <div class="param-text">
                                 <p class="param-nombre">Estado del sistema</p>
-                                <p class="param-desc">Indica si la cola tiende a estabilizarse o crecer sin límite.</p>
+                                <p class="param-desc">Indica si la fila se estabiliza o si la congesti&oacute;n tiende a crecer.</p>
                             </div>
                             <strong id="estadoSistema">-</strong>
                         </div>
@@ -135,11 +149,11 @@
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Métricas de rendimiento</h4>
+                            <h4>M&eacute;tricas de atenci&oacute;n</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('metricas')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('metricasChart', 'metricas_rendimiento.pdf', 'Métricas de rendimiento')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('metricasChart', 'metricas_rendimiento.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('metricasChart', 'metricas_atencion.pdf', 'M&eacute;tricas de atenci&oacute;n')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('metricasChart', 'metricas_atencion.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="metricasChart"></canvas>
@@ -149,11 +163,11 @@
                 <div class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Factor de utilización</h4>
+                            <h4>Ocupaci&oacute;n del sistema</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('utilizacion')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('utilizacionChart', 'factor_utilizacion.pdf', 'Factor de utilización')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('utilizacionChart', 'factor_utilizacion.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('utilizacionChart', 'ocupacion_sistema.pdf', 'Ocupaci&oacute;n del sistema')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('utilizacionChart', 'ocupacion_sistema.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="utilizacionChart"></canvas>
@@ -163,11 +177,11 @@
                 <div id="pnCol" class="analisis-col">
                     <article class="analisis-card section-card mini-card">
                         <div class="segment-header">
-                            <h4>Distribución de probabilidades P(n)</h4>
+                            <h4>Distribuci&oacute;n de clientes en sistema P(n)</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('pn')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('pnChart', 'distribucion_pn.pdf', 'Distribución P(n)')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('pnChart', 'distribucion_pn.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('pnChart', 'distribucion_clientes_pn.pdf', 'Distribuci&oacute;n de clientes P(n)')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('pnChart', 'distribucion_clientes_pn.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <div id="pnChips" class="pn-chips"></div>
@@ -178,11 +192,11 @@
                 <div id="costosCol" class="analisis-col">
                     <article class="analisis-card section-card mini-card grafica-principal-card">
                         <div class="segment-header">
-                            <h4>Gráfica de costos</h4>
+                            <h4>Costos del escenario</h4>
                             <div class="icon-actions">
                                 <button type="button" class="icon-btn" title="Exportar datos a Excel" onclick="exportarDatosGraficaExcel('costos')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=8Q0JnVzEzZWf&format=png&color=000000" alt="Excel"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('grafica', 'grafica_costos.pdf', 'Gráfica de costos')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
-                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('grafica', 'grafica_costos.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica a PDF" onclick="exportarPDF('grafica', 'costos_escenario.pdf', 'Costos del escenario')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=107446&format=png&color=000000" alt="PDF"></button>
+                                <button type="button" class="icon-btn" title="Exportar gráfica como imagen" onclick="exportarGrafica('grafica', 'costos_escenario.png')"><img class="icon-btn-img" src="https://img.icons8.com/?size=100&id=114320&format=png&color=000000" alt="Imagen"></button>
                             </div>
                         </div>
                         <canvas id="grafica"></canvas>
@@ -197,12 +211,12 @@
 </div>
 
 <footer class="footer">
-    <p>Todos los derechos reservados 2026 Kevin Garcia - Jose Muriel</p>
+    <p>Proyecto de optimizaci&oacute;n de colas en ventanilla bancaria | 2026 Kevin Garcia - Jose Muriel</p>
 </footer>
 
 <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
     <div class="loading-spinner" aria-hidden="true"></div>
-    <p>Calculando...</p>
+    <p>Analizando escenario...</p>
 </div>
 
 <script src="script.js"></script>
