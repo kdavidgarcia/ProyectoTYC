@@ -194,9 +194,9 @@ body[data-theme="dark"] .theme-toggle:hover {
 }
 
 .section-card.contexto-banner {
-    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    background: var(--surface);
     color: #111827;
-    border-color: rgba(148, 163, 184, 0.45);
+    border-color: var(--line);
 }
 
 .section-card.contexto-banner h2 {
