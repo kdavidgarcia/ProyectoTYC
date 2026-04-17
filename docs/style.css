@@ -193,6 +193,28 @@ body[data-theme="dark"] .theme-toggle:hover {
     box-shadow: var(--shadow);
 }
 
+.section-card.contexto-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+    color: #f8fafc;
+    border-color: rgba(245, 158, 11, 0.45);
+}
+
+.section-card.contexto-banner h2 {
+    color: #ffffff;
+}
+
+.section-card.contexto-banner p {
+    color: #e2e8f0;
+}
+
+.section-card.contexto-banner .contexto-item {
+    color: #f1f5f9;
+}
+
+.section-card.contexto-banner .contexto-item strong {
+    color: #ffffff;
+}
+
 .card,
 .resultados,
 .contexto-banner {
