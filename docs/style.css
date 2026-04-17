@@ -194,24 +194,50 @@ body[data-theme="dark"] .theme-toggle:hover {
 }
 
 .section-card.contexto-banner {
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    color: #111827;
+    border-color: rgba(148, 163, 184, 0.45);
+}
+
+.section-card.contexto-banner h2 {
+    color: #0f172a;
+}
+
+.section-card.contexto-banner p {
+    color: #334155;
+}
+
+.section-card.contexto-banner .contexto-item {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(148, 163, 184, 0.5);
+}
+
+.section-card.contexto-banner .contexto-item strong {
+    color: #0f172a;
+}
+
+body[data-theme="dark"] .section-card.contexto-banner {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
     color: #f8fafc;
     border-color: rgba(245, 158, 11, 0.45);
 }
 
-.section-card.contexto-banner h2 {
+body[data-theme="dark"] .section-card.contexto-banner h2 {
     color: #ffffff;
 }
 
-.section-card.contexto-banner p {
+body[data-theme="dark"] .section-card.contexto-banner p {
     color: #e2e8f0;
 }
 
-.section-card.contexto-banner .contexto-item {
+body[data-theme="dark"] .section-card.contexto-banner .contexto-item {
     color: #f1f5f9;
+    background: rgba(248, 250, 252, 0.12);
+    border-color: rgba(148, 163, 184, 0.45);
 }
 
-.section-card.contexto-banner .contexto-item strong {
+body[data-theme="dark"] .section-card.contexto-banner .contexto-item strong {
     color: #ffffff;
 }
 
