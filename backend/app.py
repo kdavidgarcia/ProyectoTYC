@@ -115,14 +115,82 @@ class ModeloMM1K(ModeloCola):
         datos.append([1, self.redondear_resultado(rho), self.redondear_resultado(P0), Lq, self.redondear_resultado(L), Wq, W, cs, cw, ct])
         return datos
 
+class ModeloMMSK(ModeloCola):
+    """Modelo M/M/s/K: una cola, multiples servidores, capacidad limitada K"""
+    def __init__(self, lambda_, mu, Cs, Cw, s, K, Cb=0.0):
+        super().__init__(lambda_, mu, Cs, Cw)
+        self.s = s
+        self.K = K
+        self.Cb = Cb
+
+    def calcular(self):
+        datos = []
+
+        if self.s < 1 or self.K < self.s:
+            return [[self.s, "Inestable", "-", "-", "-", "-", "-", "-", "-", "-"]]
+
+        a = self.lambda_ / self.mu
+
+        suma = 0.0
+        for n in range(self.s):
+            suma += (a ** n) / math.factorial(n)
+
+        for n in range(self.s, self.K + 1):
+            suma += (a ** n) / (math.factorial(self.s) * (self.s ** (n - self.s)))
+
+        P0 = 1 / suma if suma > 0 else 0.0
+
+        probabilidades = []
+        for n in range(self.K + 1):
+            if n < self.s:
+                pn = P0 * (a ** n) / math.factorial(n)
+            else:
+                pn = P0 * (a ** n) / (math.factorial(self.s) * (self.s ** (n - self.s)))
+            probabilidades.append(pn)
+
+        PK = probabilidades[self.K]
+        lambda_efectiva = self.lambda_ * (1 - PK)
+
+        L = sum(n * probabilidades[n] for n in range(self.K + 1))
+        Lq = sum(max(0, n - self.s) * probabilidades[n] for n in range(self.K + 1))
+
+        W = self.redondear_resultado(L / lambda_efectiva) if lambda_efectiva > 0 else 0.0
+        Wq = self.redondear_resultado(Lq / lambda_efectiva) if lambda_efectiva > 0 else 0.0
+        rho = self.redondear_resultado(lambda_efectiva / (self.s * self.mu)) if self.s * self.mu > 0 else 0.0
+
+        cs = self.redondear_resultado(self.s * self.Cs)
+        costo_espera = Lq * self.Cw
+        costo_bloqueo = self.lambda_ * PK * self.Cb
+        cw = self.redondear_resultado(costo_espera + costo_bloqueo)
+        ct = self.redondear_resultado(cs + cw)
+
+        datos.append([
+            self.s,
+            rho,
+            self.redondear_resultado(P0),
+            self.redondear_resultado(Lq),
+            self.redondear_resultado(L),
+            Wq,
+            W,
+            cs,
+            cw,
+            ct
+        ])
+        return datos
+
+class ModeloCostos(ModeloMMs):
+    """Modelo de costos: comparativo economico sobre M/M/s"""
+    def calcular(self):
+        return super().calcular()
+
 @app.route('/calcular', methods=['POST'])
 def calcular():
     data = request.json or {}
 
     try:
         modelo = data.get("modelo")
-        if modelo not in {"mm1", "mms", "mm1k"}:
-            return jsonify({"error": "Modelo inválido. Usa: mm1, mms o mm1k"}), 400
+        if modelo not in {"mm1", "mms", "mm1k", "mmsk", "costos"}:
+            return jsonify({"error": "Modelo inválido. Usa: mm1, mms, mm1k, mmsk o costos"}), 400
 
         lambda_ = float(data.get("lambda", 0))
         mu = float(data.get("mu", 0))
@@ -132,8 +200,9 @@ def calcular():
         else:
             Cs = float(data.get("Cs", 0))
             Cw = float(data.get("Cw", 0))
+        Cb = float(data.get("Cb", 0)) if modelo == "mmsk" else 0.0
 
-        if lambda_ < 0 or mu <= 0 or Cs < 0 or Cw < 0:
+        if lambda_ < 0 or mu <= 0 or Cs < 0 or Cw < 0 or Cb < 0:
             return jsonify({"error": "Verifica los parámetros: mu > 0 y costos no negativos"}), 400
 
         if modelo == "mm1":
@@ -145,6 +214,23 @@ def calcular():
             if s_max < 1:
                 return jsonify({"error": "s_max debe ser mayor o igual a 1"}), 400
             cola = ModeloMMs(lambda_, mu, Cs, Cw, s_max)
+            resultados = cola.calcular()
+
+        elif modelo == "costos":
+            s_max = int(data.get("s_max", 1))
+            if s_max < 1:
+                return jsonify({"error": "s_max debe ser mayor o igual a 1"}), 400
+            cola = ModeloCostos(lambda_, mu, Cs, Cw, s_max)
+            resultados = cola.calcular()
+
+        elif modelo == "mmsk":
+            s = int(data.get("s", 1))
+            K = int(data.get("K", s))
+            if s < 1:
+                return jsonify({"error": "s debe ser mayor o igual a 1"}), 400
+            if K < s:
+                return jsonify({"error": "K debe ser mayor o igual a s"}), 400
+            cola = ModeloMMSK(lambda_, mu, Cs, Cw, s, K, Cb)
             resultados = cola.calcular()
 
         else:  # mm1k
@@ -187,6 +273,14 @@ def analizar_probabilidades():
         elif modelo == "mm1k":
             K = int(data.get("K", 1))
             cola = ModeloMM1K(lambda_, mu, K, Cs, Cw)
+        elif modelo == "mmsk":
+            s = int(data.get("s", 1))
+            K = int(data.get("K", s))
+            Cb = float(data.get("Cb", 0))
+            cola = ModeloMMSK(lambda_, mu, Cs, Cw, s, K, Cb)
+        elif modelo == "costos":
+            s_max = int(data.get("s_max", 1))
+            cola = ModeloCostos(lambda_, mu, Cs, Cw, s_max)
         else:
             return jsonify({"error": "Modelo inválido"}), 400
 

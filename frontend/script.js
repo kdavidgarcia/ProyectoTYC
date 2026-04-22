@@ -203,6 +203,46 @@ function cambiarFormulario() {
             <input id="K" type="number" min="1" step="1" placeholder="Ej: 10">
         </div>
         `;
+    } else if (modelo === "mmsk") {
+        descripcion = "Escenario con varios cajeros y capacidad limitada total K. Incluye costo por clientes bloqueados.";
+        html += `
+        <div class="param-group">
+            <label for="Cs">Costo de servicio por cajero (Cs):</label>
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 80">
+        </div>
+        <div class="param-group">
+            <label for="Cw">Costo de espera (Cw):</label>
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 50">
+        </div>
+        <div class="param-group">
+            <label for="Cb">Costo por cliente bloqueado (Cb):</label>
+            <input id="Cb" type="number" min="0" step="any" placeholder="Ej: 120">
+        </div>
+        <div class="param-group">
+            <label for="s">Numero de cajeros activos (s):</label>
+            <input id="s" type="number" min="1" step="1" placeholder="Ej: 3">
+        </div>
+        <div class="param-group">
+            <label for="K">Capacidad maxima del sistema (K):</label>
+            <input id="K" type="number" min="1" step="1" placeholder="Ej: 12">
+        </div>
+        `;
+    } else if (modelo === "costos") {
+        descripcion = "Modelo de costos para encontrar el numero de cajeros que minimiza el costo total (servicio + espera).";
+        html += `
+        <div class="param-group">
+            <label for="Cs">Costo de servicio por cajero (Cs):</label>
+            <input id="Cs" type="number" min="0" step="any" placeholder="Ej: 80">
+        </div>
+        <div class="param-group">
+            <label for="Cw">Costo de espera (Cw):</label>
+            <input id="Cw" type="number" min="0" step="any" placeholder="Ej: 50">
+        </div>
+        <div class="param-group">
+            <label for="s_max">Numero maximo de cajeros a evaluar (s):</label>
+            <input id="s_max" type="number" min="1" step="1" placeholder="Ej: 8">
+        </div>
+        `;
     }
 
     document.getElementById("formulario").innerHTML = html;
@@ -214,7 +254,7 @@ function cambiarFormulario() {
 function ajustarTarjetasPorModelo(modelo) {
     const pnCol = document.getElementById("pnCol");
     const costosCol = document.getElementById("costosCol");
-    const esMms = modelo === "mms";
+    const esMms = modelo === "mms" || modelo === "costos";
     const mostrarPn = !esMms;
     const mostrarCostos = esMms;
 
@@ -271,12 +311,18 @@ async function calcular() {
         data.Cw = parseFloat(document.getElementById("Cw")?.value || 0);
     }
 
-    if (modelo === "mms") {
+    if (modelo === "mms" || modelo === "costos") {
         data.s_max = parseInt(document.getElementById("s_max")?.value || 1);
     }
 
     if (modelo === "mm1k") {
         data.K = parseInt(document.getElementById("K")?.value || 1);
+    }
+
+    if (modelo === "mmsk") {
+        data.Cb = parseFloat(document.getElementById("Cb")?.value || 0);
+        data.s = parseInt(document.getElementById("s")?.value || 1);
+        data.K = parseInt(document.getElementById("K")?.value || data.s || 1);
     }
 
     // Validaciones
@@ -300,7 +346,7 @@ async function calcular() {
         return;
     }
 
-    if (modelo === "mms" && (!data.s_max || data.s_max < 1)) {
+    if ((modelo === "mms" || modelo === "costos") && (!data.s_max || data.s_max < 1)) {
         mostrarMensaje("Ingresa un numero valido de cajeros (s >= 1).", true);
         return;
     }
@@ -308,6 +354,21 @@ async function calcular() {
     if (modelo === "mm1k" && (!data.K || data.K < 1)) {
         mostrarMensaje("Ingresa una capacidad K valida (K >= 1).", true);
         return;
+    }
+
+    if (modelo === "mmsk") {
+        if (!Number.isFinite(data.Cb) || data.Cb < 0) {
+            mostrarMensaje("Cb debe ser un costo valido y no negativo.", true);
+            return;
+        }
+        if (!data.s || data.s < 1) {
+            mostrarMensaje("Ingresa un numero valido de cajeros activos (s >= 1).", true);
+            return;
+        }
+        if (!data.K || data.K < data.s) {
+            mostrarMensaje("Ingresa una capacidad valida con K >= s.", true);
+            return;
+        }
     }
 
     setLoading(true);
@@ -391,7 +452,7 @@ function actualizarAvisoLimiteTabla(modelo, totalResultados) {
         return;
     }
 
-    const mostrar = modelo === "mms" && totalResultados > 10;
+    const mostrar = (modelo === "mms" || modelo === "costos") && totalResultados > 10;
     aviso.style.display = mostrar ? "block" : "none";
     aviso.textContent = mostrar
         ? "Solo se muestran 10 escenarios; descarga Excel para ver el comparativo completo."
@@ -504,13 +565,7 @@ function limpiarAnalisis() {
     if (paramCs) paramCs.textContent = "-";
     if (paramCw) paramCw.textContent = "-";
     if (paramModelo) {
-        paramModelo.textContent = modelo === "mm1"
-            ? "M/M/1"
-            : modelo === "mms"
-                ? "M/M/s"
-                : modelo === "mm1k"
-                    ? "M/M/1/K"
-                    : "-";
+        paramModelo.textContent = nombreModelo(modelo);
     }
     if (estadoSistema) {
         estadoSistema.textContent = "-";
@@ -576,6 +631,15 @@ function obtenerFilaReferencia(filas) {
     return conCosto.reduce((mejor, actual) => (actual[9] < mejor[9] ? actual : mejor));
 }
 
+function nombreModelo(modelo) {
+    if (modelo === "mm1") return "M/M/1";
+    if (modelo === "mms") return "M/M/s";
+    if (modelo === "mm1k") return "M/M/1/K";
+    if (modelo === "mmsk") return "M/M/s/K";
+    if (modelo === "costos") return "Modelo de costos";
+    return "-";
+}
+
 function construirProbabilidades(modelo, p0, rho, kMax) {
     if (!Number.isFinite(p0) || !Number.isFinite(rho) || rho < 0) {
         return [];
@@ -585,6 +649,31 @@ function construirProbabilidades(modelo, p0, rho, kMax) {
     if (modelo === "mm1k" && Number.isInteger(kMax) && kMax > 0) {
         for (let n = 0; n <= kMax; n += 1) {
             const pn = p0 * (rho ** n);
+            probabilidades.push({ n, pn });
+        }
+        return probabilidades;
+    }
+
+    if (modelo === "mmsk") {
+        const s = Number(document.getElementById("s")?.value || 0);
+        const lambda = Number(document.getElementById("lambda")?.value || 0);
+        const mu = Number(document.getElementById("mu")?.value || 0);
+        if (!Number.isFinite(s) || s < 1 || !Number.isFinite(lambda) || !Number.isFinite(mu) || mu <= 0) {
+            return [];
+        }
+
+        const a = lambda / mu;
+        for (let n = 0; n <= kMax; n += 1) {
+            let pn = 0;
+            if (n < s) {
+                let factorial = 1;
+                for (let i = 2; i <= n; i += 1) factorial *= i;
+                pn = p0 * ((a ** n) / factorial);
+            } else {
+                let factorialS = 1;
+                for (let i = 2; i <= s; i += 1) factorialS *= i;
+                pn = p0 * ((a ** n) / (factorialS * (s ** (n - s))));
+            }
             probabilidades.push({ n, pn });
         }
         return probabilidades;
@@ -626,11 +715,7 @@ function renderizarAnalisis(filas, requestData) {
         const paramModelo = document.getElementById("paramModelo");
         const estadoSistema = document.getElementById("estadoSistema");
         if (paramModelo) {
-            paramModelo.textContent = requestData.modelo === "mm1"
-                ? "M/M/1"
-                : requestData.modelo === "mms"
-                    ? "M/M/s"
-                    : "M/M/1/K";
+            paramModelo.textContent = nombreModelo(requestData.modelo);
         }
         if (estadoSistema) {
             estadoSistema.textContent = esInestable ? "Inestable" : "-";
@@ -649,7 +734,7 @@ function renderizarAnalisis(filas, requestData) {
     const wq = Number(fila[5]);
     const w = Number(fila[6]);
     const k = Number(requestData.K);
-    const pk = requestData.modelo === "mm1k" && Number.isInteger(k) && k >= 1
+    const pk = (requestData.modelo === "mm1k" || requestData.modelo === "mmsk") && Number.isInteger(k) && k >= 1
         ? p0 * (rho ** k)
         : null;
     const bloqueadosHora = Number.isFinite(pk) ? Number(requestData.lambda) * pk : null;
@@ -693,11 +778,7 @@ function renderizarAnalisis(filas, requestData) {
         chips.innerHTML = probabilidades.map((p) => `<span class="pn-chip">P(${p.n}) = ${(p.pn * 100).toFixed(2)}%</span>`).join("");
     }
 
-    const nombreModelo = requestData.modelo === "mm1"
-        ? "M/M/1"
-        : requestData.modelo === "mms"
-            ? "M/M/s"
-            : "M/M/1/K";
+    const modeloLabel = nombreModelo(requestData.modelo);
 
     const paramLambda = document.getElementById("paramLambda");
     const paramMu = document.getElementById("paramMu");
@@ -711,7 +792,7 @@ function renderizarAnalisis(filas, requestData) {
     if (paramMu) paramMu.textContent = formatearValor(Number(requestData.mu));
     if (paramCs) paramCs.textContent = formatearValor(Number(fila[7]));
     if (paramCw) paramCw.textContent = formatearValor(Number(fila[8]));
-    if (paramModelo) paramModelo.textContent = nombreModelo;
+    if (paramModelo) paramModelo.textContent = modeloLabel;
     if (estadoSistema) {
         const esEstable = rho < 1;
         estadoSistema.textContent = esEstable ? "Estable" : "Inestable";
