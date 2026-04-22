@@ -35,11 +35,13 @@ class ModeloMM1(ModeloCola):
     """Modelo M/M/1: Una cola, un servidor"""
     def calcular(self):
         datos = []
+        # Utilizacion del unico servidor.
         rho = self.lambda_ / self.mu
 
         if rho >= 1:
             return [[1, "Inestable", "-", "-", "-", "-", "-", "-", "-", "-"]]
 
+        # Formulas clasicas de M/M/1 en estado estable (rho < 1).
         P0 = 1 - rho
         Lq = self.redondear_resultado((rho ** 2) / (1 - rho))
         L = self.redondear_resultado(Lq + rho)
@@ -61,17 +63,21 @@ class ModeloMMs(ModeloCola):
     def calcular(self):
         datos = []
         for s in range(1, self.s_max + 1):
+            # Utilizacion con s servidores en paralelo.
             rho = self.lambda_ / (s * self.mu)
 
             if rho >= 1:
                 datos.append([s, "Inestable", "-", "-", "-", "-", "-", "-", "-", "-"])
                 continue
 
+            # a = lambda/mu representa la carga ofrecida al sistema.
             a = self.lambda_ / self.mu
+            # Probabilidad de sistema vacio usando Erlang C para M/M/s.
             suma = sum((a ** n) / math.factorial(n) for n in range(s))
             parte2 = ((a ** s) / (math.factorial(s) * (1 - rho)))
             P0 = 1 / (suma + parte2)
 
+            # Metricas promedio de cola y tiempos de espera.
             Lq = self.redondear_resultado((P0 * (a ** s) * rho) / (math.factorial(s) * ((1 - rho) ** 2)))
             L = self.redondear_resultado(Lq + a)
             Wq = self.redondear_resultado(Lq / self.lambda_)
@@ -94,11 +100,13 @@ class ModeloMM1K(ModeloCola):
         datos = []
         rho = self.lambda_ / self.mu
 
+        # Normalizacion de probabilidades para capacidad finita K.
         if rho == 1:
             P0 = 1 / (self.K + 1)
         else:
             P0 = (1 - rho) / (1 - rho ** (self.K + 1))
 
+        # L = sumatoria de n*Pn para n=0..K.
         L = 0
         for n in range(self.K + 1):
             Pn = P0 * (rho ** n)
@@ -129,8 +137,10 @@ class ModeloMMSK(ModeloCola):
         if self.s < 1 or self.K < self.s:
             return [[self.s, "Inestable", "-", "-", "-", "-", "-", "-", "-", "-"]]
 
+        # Carga ofrecida por unidad de tiempo.
         a = self.lambda_ / self.mu
 
+        # P0 para M/M/s/K: suma de estados n < s y n >= s hasta K.
         suma = 0.0
         for n in range(self.s):
             suma += (a ** n) / math.factorial(n)
@@ -140,6 +150,7 @@ class ModeloMMSK(ModeloCola):
 
         P0 = 1 / suma if suma > 0 else 0.0
 
+        # Construccion explicita de Pn para cada estado posible del sistema.
         probabilidades = []
         for n in range(self.K + 1):
             if n < self.s:
@@ -148,7 +159,9 @@ class ModeloMMSK(ModeloCola):
                 pn = P0 * (a ** n) / (math.factorial(self.s) * (self.s ** (n - self.s)))
             probabilidades.append(pn)
 
+        # PK es la probabilidad de bloqueo (sistema lleno).
         PK = probabilidades[self.K]
+        # Tasa efectiva: solo entran clientes cuando no esta lleno.
         lambda_efectiva = self.lambda_ * (1 - PK)
 
         L = sum(n * probabilidades[n] for n in range(self.K + 1))
@@ -159,6 +172,7 @@ class ModeloMMSK(ModeloCola):
         rho = self.redondear_resultado(lambda_efectiva / (self.s * self.mu)) if self.s * self.mu > 0 else 0.0
 
         cs = self.redondear_resultado(self.s * self.Cs)
+        # En este modelo, Cw agrupa espera + penalizacion por bloqueo.
         costo_espera = Lq * self.Cw
         costo_bloqueo = self.lambda_ * PK * self.Cb
         cw = self.redondear_resultado(costo_espera + costo_bloqueo)
@@ -181,6 +195,7 @@ class ModeloMMSK(ModeloCola):
 class ModeloCostos(ModeloMMs):
     """Modelo de costos: comparativo economico sobre M/M/s"""
     def calcular(self):
+        # Reutiliza M/M/s para barrer s=1..s_max y comparar Ct.
         return super().calcular()
 
 @app.route('/calcular', methods=['POST'])
@@ -194,6 +209,7 @@ def calcular():
 
         lambda_ = float(data.get("lambda", 0))
         mu = float(data.get("mu", 0))
+        # mm1 no usa costos en la interfaz; se fuerzan a cero.
         if modelo == "mm1":
             Cs = 0.0
             Cw = 0.0
@@ -210,6 +226,7 @@ def calcular():
             resultados = cola.calcular()
 
         elif modelo == "mms":
+            # Evalua todos los escenarios de servidores hasta s_max.
             s_max = int(data.get("s_max", 1))
             if s_max < 1:
                 return jsonify({"error": "s_max debe ser mayor o igual a 1"}), 400
@@ -224,6 +241,7 @@ def calcular():
             resultados = cola.calcular()
 
         elif modelo == "mmsk":
+            # M/M/s/K requiere capacidad total K y servidores fijos s.
             s = int(data.get("s", 1))
             K = int(data.get("K", s))
             if s < 1:

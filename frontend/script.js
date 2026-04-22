@@ -72,6 +72,7 @@ async function pingRenderInBackground() {
 }
 
 async function solicitarCalculo(data) {
+    // In localhost we try local Flask first, then Render as fallback.
     const endpoints = shouldTryLocalFirst
         ? [LOCAL_API_URL, RENDER_API_URL]
         : [RENDER_API_URL];
@@ -214,6 +215,7 @@ function cambiarFormulario() {
         </div>
         `;
     } else if (modelo === "mmsk") {
+        // M/M/s/K: multiple servers with finite capacity K and optional blocking cost Cb.
         descripcion = "Escenario con varios cajeros y capacidad limitada total K. Incluye costo por clientes bloqueados.";
         html += `
         <div class="param-group">
@@ -238,6 +240,7 @@ function cambiarFormulario() {
         </div>
         `;
     } else if (modelo === "costos") {
+        // Cost model: evaluate multiple values of s to identify minimum total cost.
         descripcion = "Modelo de costos para encontrar el numero de cajeros que minimiza el costo total (servicio + espera).";
         html += `
         <div class="param-group">
@@ -322,6 +325,7 @@ async function calcular() {
     }
 
     if (modelo === "mms" || modelo === "costos") {
+        // These models sweep server scenarios from 1 to s_max.
         data.s_max = parseInt(document.getElementById("s_max")?.value || 1);
     }
 
@@ -330,6 +334,7 @@ async function calcular() {
     }
 
     if (modelo === "mmsk") {
+        // M/M/s/K uses fixed s and K plus a blocking penalty Cb.
         data.Cb = parseFloat(document.getElementById("Cb")?.value || 0);
         data.s = parseInt(document.getElementById("s")?.value || 1);
         data.K = parseInt(document.getElementById("K")?.value || data.s || 1);
@@ -665,6 +670,7 @@ function construirProbabilidades(modelo, p0, rho, kMax) {
     }
 
     if (modelo === "mmsk") {
+        // Build P(n) for finite-capacity M/M/s/K using piecewise state equations.
         const s = Number(document.getElementById("s")?.value || 0);
         const lambda = Number(document.getElementById("lambda")?.value || 0);
         const mu = Number(document.getElementById("mu")?.value || 0);
