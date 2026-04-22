@@ -67,12 +67,12 @@ async function pingRenderInBackground() {
             cache: "no-store"
         });
     } catch {
-        // Keep silent: this warm-up is best-effort only.
+        // Mantener silencio: este calentamiento es solo un intento preventivo.
     }
 }
 
 async function solicitarCalculo(data) {
-    // In localhost we try local Flask first, then Render as fallback.
+    // En localhost se intenta primero Flask local y luego Render como respaldo.
     const endpoints = shouldTryLocalFirst
         ? [LOCAL_API_URL, RENDER_API_URL]
         : [RENDER_API_URL];
@@ -97,7 +97,7 @@ async function solicitarCalculo(data) {
                     && ["mmsk", "costos"].includes(String(data?.modelo || ""))
                     && /modelo\s+inv[aá]lido/i.test(mensaje);
 
-                // If local backend is outdated, continue with Render before failing.
+                // Si el backend local esta desactualizado, intentar Render antes de fallar.
                 if (backendDesactualizado) {
                     break;
                 }
@@ -215,7 +215,7 @@ function cambiarFormulario() {
         </div>
         `;
     } else if (modelo === "mmsk") {
-        // M/M/s/K: multiple servers with finite capacity K and optional blocking cost Cb.
+        // M/M/s/K: varios servidores con capacidad finita K y costo opcional por bloqueo Cb.
         descripcion = "Escenario con varios cajeros y capacidad limitada total K. Incluye costo por clientes bloqueados.";
         html += `
         <div class="param-group">
@@ -240,7 +240,7 @@ function cambiarFormulario() {
         </div>
         `;
     } else if (modelo === "costos") {
-        // Cost model: evaluate multiple values of s to identify minimum total cost.
+        // Modelo de costos: evalua varios valores de s para identificar el costo total minimo.
         descripcion = "Modelo de costos para encontrar el numero de cajeros que minimiza el costo total (servicio + espera).";
         html += `
         <div class="param-group">
@@ -325,7 +325,7 @@ async function calcular() {
     }
 
     if (modelo === "mms" || modelo === "costos") {
-        // These models sweep server scenarios from 1 to s_max.
+        // Estos modelos recorren escenarios de servidores desde 1 hasta s_max.
         data.s_max = parseInt(document.getElementById("s_max")?.value || 1);
     }
 
@@ -334,7 +334,7 @@ async function calcular() {
     }
 
     if (modelo === "mmsk") {
-        // M/M/s/K uses fixed s and K plus a blocking penalty Cb.
+        // M/M/s/K usa s y K fijos, mas una penalizacion por bloqueo Cb.
         data.Cb = parseFloat(document.getElementById("Cb")?.value || 0);
         data.s = parseInt(document.getElementById("s")?.value || 1);
         data.K = parseInt(document.getElementById("K")?.value || data.s || 1);
@@ -670,7 +670,7 @@ function construirProbabilidades(modelo, p0, rho, kMax) {
     }
 
     if (modelo === "mmsk") {
-        // Build P(n) for finite-capacity M/M/s/K using piecewise state equations.
+        // Construye P(n) para M/M/s/K de capacidad finita con ecuaciones por tramos.
         const s = Number(document.getElementById("s")?.value || 0);
         const lambda = Number(document.getElementById("lambda")?.value || 0);
         const mu = Number(document.getElementById("mu")?.value || 0);
