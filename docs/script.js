@@ -91,6 +91,16 @@ async function solicitarCalculo(data) {
                 }
 
                 const mensaje = result.error || "Error en el servidor";
+                const backendDesactualizado =
+                    endpoint === LOCAL_API_URL
+                    && ["mmsk", "costos"].includes(String(data?.modelo || ""))
+                    && /modelo\s+inv[aá]lido/i.test(mensaje);
+
+                // If local backend is outdated, continue with Render before failing.
+                if (backendDesactualizado) {
+                    break;
+                }
+
                 if (RETRYABLE_STATUS.has(response.status) && intento === 1) {
                     await delay(1200);
                     continue;
